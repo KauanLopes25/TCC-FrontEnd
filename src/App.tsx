@@ -1,13 +1,17 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './styles/index.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Cadastro } from './pages/Cadastro';
+// Importe outras telas que você for criando no futuro:
+// import { Welcome } from './pages/Welcome';
+ import { Login } from './pages/Login';
 
-function App() {
+export default function App() {
   return (
-    <h1>Sempre Limpa</h1>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} /> {/* Login como tela inicial se preferir */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/cadastro" element={<Cadastro />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
-
-export default App
