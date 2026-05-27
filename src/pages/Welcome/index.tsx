@@ -1,18 +1,28 @@
 import { Header } from '../../components/Header';
 import { Background } from '../../components/Background';
 import './welcome.css';
+import { CarrosselLateral } from '../../components/CarrosselLateral';
+import img1 from '../../assets/images/Maquina de lavar.png'
+import img2 from '../../assets/images/hero.png';
+import img3 from '../../assets/images/Maquina de lavar.png';
 
 export function Welcome() {
+
+    const minhasImagens = [
+    img1, img2, img3
+  ];
   return (
     <div className="welcome-page">
       <Header />
       
       <main className="hero-section">
         <div className="hero-content">
-          <h1>Sua roupa limpa, <br/><span>sem esforço.</span></h1>
+          <h1>SEMPRELIMPA <br/></h1>
           <p>
-            A plataforma que conecta você à lavanderia ideal. 
-            Praticidade, qualidade e rapidez em um só lugar.
+            Está sem tempo para lavar roupa?
+          </p>
+          <p>
+            Deixe com a gente! Coletamos, lavamos e entregamos sua roupa limpinha na sua porta.
           </p>
           <div className="hero-btns">
             <button className="btn-primary">Conhecer Serviços</button>
@@ -21,19 +31,18 @@ export function Welcome() {
         </div>
 
         <div className="hero-image">
-          {/* Pode usar a mesma imagem da máquina ou uma ilustração */}
-          <img src="/assets/maquina.jpg" alt="Máquina de lavar moderna" />
+         <CarrosselLateral imagens={minhasImagens}></CarrosselLateral>
         </div>
       </main>
 
-      <section id="servicos" className="info-section">
+      {/* <section id="servicos" className="info-section">
         <h2>Nossos Serviços</h2>
         <div className="services-grid">
             <div className="service-card">Lavagem Seca</div>
             <div className="service-card">Passadoria</div>
             <div className="service-card">Delivery</div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }
