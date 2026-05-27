@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom';
 import { MdLocalLaundryService } from 'react-icons/md';
-import './styles.css';
+import { colors } from '../../themes/colors';
+import './header.css';
+
+Object.entries(colors).forEach(([key, value]) => {
+  document.documentElement.style.setProperty(`--color-${key}`, value);
+});
 
 export function Header() {
   return (

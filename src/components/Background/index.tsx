@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { colors } from '../../themes/colors';
-import '../../styles/background.css';
+import './background.css';
 
 interface BackgroundProps {
   children: ReactNode;

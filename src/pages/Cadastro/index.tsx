@@ -3,7 +3,7 @@ import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { BackButton } from '../../components/BackButton';
 import { useCadastro } from '../../hooks/useCadastro';
-import '../../styles/cadastro.css';
+import './cadastro.css';
 
 export function Cadastro() {
   const { form, acoes, erros } = useCadastro();

@@ -19,5 +19,6 @@ export const colors = {
     secundaryColorAlertText: '#B45309',
     autenticCard: '#f1f6fa',
     iconColorArrow: '#475569',
-    grayIcon: '#6B7280'
+    grayIcon: '#6B7280',
+    errorAlert: '#fb0000ff'
   };

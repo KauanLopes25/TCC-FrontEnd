@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi'; // Puxa a flecha minimalista
-import '../../styles/backButton.css';
+import './backButton.css';
 
 interface BackButtonProps {
   to?: string; // Caminho opcional para forçar a volta para uma tela específica

@@ -4,8 +4,9 @@ import { Button } from '../../components/Button';
 import { BackButton } from '../../components/BackButton';
 import { useLogin } from '../../hooks/useLogin';
 import { Link } from 'react-router-dom'; // Para o "Esqueci minha senha"
-import '../../styles/cadastro.css'; // Reutiliza o CSS do cadastro
-import '../../styles/login.css'; // Estilos específicos do login
+import '../Cadastro/cadastro.css'; // Reutiliza o CSS do cadastro
+import './login.css'; // Estilos específicos do login
+import { colors } from '../../themes/colors';
 
 export function Login() {
   const { identificacao, setIdentificacao, senha, setSenha, handleLogin, erro, carregando } = useLogin();
@@ -38,12 +39,12 @@ export function Login() {
                 />
                 
                 <Link to="/recuperar-senha" title="Esqueci minha senha"
-                  style={{ alignSelf: 'flex-end', color: '#3ba1f2', fontSize: '0.9rem', fontWeight: 500, textDecoration: 'none' }}>
+                  style={{ alignSelf: 'flex-end', color: colors.primary, fontSize: '0.9rem', fontWeight: 500, textDecoration: 'none' }}>
                   Esqueci minha senha
                 </Link>
               </div>
 
-              {erro && <p style={{ color: '#ff4d4d', textAlign: 'center', fontSize: '0.9rem' }}>{erro}</p>}
+              {erro && <p style={{ color: colors.errorAlert, textAlign: 'center', fontSize: '0.9rem' }}>{erro}</p>}
 
               <div style={{ marginTop: '10px' }}>
                 <Button type="submit" variant="primary" disabled={carregando}>

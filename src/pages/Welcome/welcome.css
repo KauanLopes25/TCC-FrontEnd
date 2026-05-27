@@ -1,0 +1,132 @@
+.welcome-page {
+  padding-top: 80px; /* Compensa o header fixo */
+  background-color: #f0f8ff;
+  min-height: 100vh;
+}
+
+.hero-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 80px 20px;
+  gap: 50px;
+}
+
+.hero-content {
+  flex: 1;
+}
+
+.hero-content h1 {
+  font-size: 3.5rem;
+  color: #333;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+
+.hero-content h1 span {
+  color: #3ba1f2;
+}
+
+.hero-content p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 30px;
+  max-width: 500px;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 20px;
+}
+
+.hero-btns button {
+  padding: 15px 30px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-primary { background: #3ba1f2; color: white; }
+.btn-secondary { background: white; color: #3ba1f2; border: 2px solid #3ba1f2 !important; }
+
+.hero-btns button:hover { transform: translateY(-3px); }
+
+.hero-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-image img {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 30px;
+  box-shadow: 20px 20px 60px #d9e4ef, -20px -20px 60px #ffffff;
+}
+
+.info-section {
+    padding: 100px 20px;
+    text-align: center;
+    background: white;
+}
+
+.services-grid {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.service-card {
+    padding: 40px;
+    background: #f0f8ff;
+    border-radius: 20px;
+    width: 200px;
+    font-weight: 600;
+    color: #3ba1f2;
+}
+
+/* =========================================
+   RESPONSIVIDADE (Tablets e Celulares)
+   ========================================= */
+
+@media (max-width: 900px) {
+  /* 1. Devolvemos o espaço da tela tirando o padding gigante */
+  .header-container {
+    padding: 0 30px; 
+  }
+
+  .nav-menu {
+    display: none; 
+  }
+
+  /* 3. Diminuímos a fonte do logo */
+  .logo h1 {
+    font-size: 1.2rem;
+  }
+
+  /* 4. Aproximamos e diminuímos os botões */
+  .header-actions {
+    gap: 10px;
+  }
+
+  .btn-login, .btn-signup {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 600px) {
+  
+  .logo h1 {
+    display: none; 
+  }
+
+  .btn-login, .btn-signup {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+}
