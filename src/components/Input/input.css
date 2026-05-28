@@ -1,0 +1,39 @@
+.input-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%; /* Garante que nunca vai ser maior que o espaço dele */
+    margin-bottom: 4px;
+    box-sizing: border-box; /* A mágica de conter o tamanho */
+  }
+  
+  .input-label {
+    font-size: 0.9rem;
+    color: #555555; /* Cor do texto (Nome, Email) */
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  
+  .input-field {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 16px;
+    background-color: #3ba1f2; /* O azul sólido do input da imagem */
+    color: #ffffff; /* Texto branco quando o usuário digitar */
+    border: none;
+    border-radius: 20px; /* Arredondamento da pílula */
+    font-size: 1rem;
+    outline: none;
+    font-family: inherit;
+    transition: box-shadow 0.2s ease;
+  }
+  
+  /* Muda a cor do placeholder para um branco mais transparente para dar contraste no fundo azul */
+  .input-field::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  /* Dá um destaque sutil quando o usuário clica para digitar */
+  .input-field:focus {
+    box-shadow: 0 0 0 3px rgba(59, 161, 242, 0.3);
+  }

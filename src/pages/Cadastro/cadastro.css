@@ -1,0 +1,309 @@
+/* =========================================
+   CONTAINER PRINCIPAL (Ajuste de Proporção)
+   ========================================= */
+   .auth-container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f0f8ff;
+  }
+  
+  /* =========================================
+     LADO ESQUERDO: ÁREA DO FORMULÁRIO
+     ========================================= */
+  .form-section {
+    flex: 1.2; /* Dá uma leve prioridade de espaço para o formulário respirar */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 40px; /* Aumentado o respiro em volta do card */
+  }
+  
+  /* O CARD (Aumentado e com mais espaço interno) */
+  .auth-card {
+    position: relative;
+    background: #ffffff;
+    padding: 45px 50px; /* Aumentado! Mais respiro nas bordas internas do card */
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 680px; /* Aumentado de 550px para 680px para espalhar os inputs */
+  }
+  
+  .auth-card h2 {
+    text-align: center;
+    color: #333333;
+    font-size: 2.2rem;
+    margin-bottom: 35px; /* Mais espaço entre o título e o início do form */
+    font-weight: 700;
+  }
+  
+  /* GRID DOS INPUTS (Mais afastados) */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(250px, 1fr));
+    column-gap: 35px; /* Aumentado o espaço horizontal */
+    row-gap: 26px;    /* Aumentado o espaço vertical */
+    margin-top: 25px;
+  }
+  
+  .full-width {
+    grid-column: 1 / -1;
+  }
+  
+  /* Ajuste sutil no componente interno para garantir respiro */
+  .input-container {
+    margin-bottom: 4px; /* Pequeno afastamento extra de segurança */
+  }
+  
+  /* Requisitos da Senha e Termos */
+  .password-requirements {
+    font-size: 0.85rem;
+    color: #666666;
+    margin: 12px 0;
+    line-height: 1.5;
+  }
+  
+  .terms-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: #3ba1f2;
+    font-weight: 500;
+    margin: 15px 0 5px 0;
+  }
+  
+  .btn-wrapper {
+    margin-top: 15px;
+  }
+  
+  /* =========================================
+     LADO DIREITO: IMAGEM DA MÁQUINA DE LAVAR
+     ========================================= */
+  .image-section {
+    flex: 0.9; /* Reduzido levemente para empurrar a máquina mais perto do card */
+    background: url('/src/assets/images/Maquina\ de\ lavar.png') no-repeat center center;
+    background-size: cover; /* Faz a imagem preencher o espaço sem distorcer */
+    display: block;
+  }
+
+/* Esconde o checkbox padrão do navegador mas mantém ele acessível */
+.terms-container input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+  
+  /* Cria a "caixa" do checkbox customizado */
+  .terms-container label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    padding-left: 35px; /* Espaço para o checkbox */
+    color: #3ba1f2; /* Cor azul do texto */
+  }
+  
+  /* A caixa em si */
+  .terms-container label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background-color: #3ba1f2; /* Azul sólido igual aos inputs da imagem */
+    
+    /* O DROP SHADOW que você pediu */
+    box-shadow: 0 4px 6px rgba(59, 161, 242, 0.4); 
+    
+    transition: all 0.2s ease;
+  }
+  
+  /* O "V" de checkado (que aparece quando clica) */
+  .terms-container label::after {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 11px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+    opacity: 0; /* Escondido por padrão */
+    transition: all 0.2s ease;
+  }
+  
+  /* Estilo quando o checkbox está MARCADO */
+  .terms-container input[type="checkbox"]:checked + label::before {
+    background-color: #0056b3; /* Azul mais escuro quando marcado */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra menor quando pressionado */
+  }
+  
+  .terms-container input[type="checkbox"]:checked + label::after {
+    opacity: 1; /* Mostra o "V" branco */
+  }
+  
+ /* --- Checkbox Customizado (Branco com Sombra) --- */
+
+/* Esconde o checkbox padrão */
+.terms-container input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+  
+  /* Base da label e do texto */
+  .terms-container label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    padding-left: 35px; /* Espaço para o checkbox */
+    color: #3ba1f2; /* Cor azul do texto */
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  /* A caixa do checkbox (Onde está o visual) */
+  .terms-container label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    
+    /* --- AJUSTES PEDIDOS --- */
+    background-color: #ffffff; /* Fundo agora é BRANCO */
+    border: 1px solid #e0e0e0;  /* Bordinha cinza bem clara para definir a caixa */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08); /* Sombra estilo DROP SHADOW suave */
+    
+    transition: all 0.2s ease;
+  }
+  
+  /* O "V" de checkado (Escondido por padrão) */
+  .terms-container label::after {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 11px;
+    
+    /* --- AJUSTE PEDIDO --- */
+    border: solid #3ba1f2; /* O "V" agora é AZUL para contrastar com o fundo branco */
+    border-width: 0 3px 3px 0;
+    
+    transform: rotate(45deg);
+    opacity: 0; /* Começa invisível */
+    transition: all 0.15s ease;
+  }
+  
+  /* Estilo quando o checkbox está MARCADO */
+  .terms-container input[type="checkbox"]:checked + label::before {
+    border-color: #3ba1f2; /* A bordinha fica azul quando marca */
+    box-shadow: 0 2px 4px rgba(59, 161, 242, 0.2); /* Sombra azulada sutil quando marcado */
+  }
+  
+  /* Mostra o "V" azul quando marcado */
+  .terms-container input[type="checkbox"]:checked + label::after {
+    opacity: 1;
+  }
+
+  .error-text {
+    display: block;
+    color: #ff4d4d;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    font-weight: 500;
+    margin-left: 5px;
+  }
+  
+  /* =========================================
+     2. O RESPIRO FINAL DO CARD (O espaçamento que faltava)
+     ========================================= */
+  .btn-wrapper {
+    margin-top: 30px; /* Afasta o botão dos termos */
+    margin-bottom: 20px; /* Garante que o fundo do card respire */
+  }
+  
+  .auth-card {
+    /* Se o card estiver cortando, isso garante que o padding de baixo seja respeitado */
+    padding-bottom: 50px !important; 
+  }
+  
+  
+  /* =========================================
+   RESPONSIVIDADE (Ajustada e Corrigida)
+   ========================================= */
+
+/* --- TABLET / NOTS PEQUENOS (Breakpoint 1) --- */
+@media (max-width: 1150px) {
+    /* Esconde a imagem da máquina */
+    .image-section {
+      display: none;
+    }
+    
+    /* Formulário assume a tela inteira */
+    .form-section {
+      flex: 1;
+      padding: 40px 30px; /* Padding externo equilibrado */
+    }
+    
+    .auth-card {
+      padding: 50px 40px; /* Padding interno do card maior para tablet */
+      max-width: 620px; /* Levemente menor para assentar melhor no tablet */
+    }
+    
+    .form-grid {
+      column-gap: 25px; /* Espaço horizontal um pouco menor no tablet */
+    }
+  }
+  
+  /* --- CELULAR (Breakpoint 2) --- */
+  @media (max-width: 600px) {
+    .form-section {
+      padding: 20px 15px; /* Menos padding externo para aproveitar a tela do celular */
+    }
+    
+    .auth-card {
+      padding: 30px 20px; /* Padding interno do card menor no celular */
+      border-radius: 12px; /* Cantos menos arredondados no mobile */
+    }
+    
+    .auth-card h2 {
+      font-size: 1.6rem; /* Título menor no celular */
+      margin-bottom: 25px;
+    }
+    
+    /* --- A CORREÇÃO DO GRID --- */
+    .form-grid {
+      grid-template-columns: 1fr; /* FORÇA UMA COLUNA SÓ. Isso cancela o minmax anterior. */
+      row-gap: 18px; /* Espaço vertical um pouco menor no celular */
+      column-gap: 0; /* Sem espaço horizontal pois é uma coluna só */
+    }
+    
+    /* Garante que o texto dos termos não quebre estranho em telas muito finas */
+    .terms-container label {
+      font-size: 0.8rem;
+      align-items: flex-start; /* Alinha no topo se o texto for muito longo */
+      padding-left: 30px;
+    }
+    .terms-container label::before {
+      top: 2px; /* Ajusta a posição da caixa quando alinhar no topo */
+    }
+    .terms-container label::after {
+      top: 5px;
+    }
+    
+    /* Ajuste no final do card para celular */
+    .btn-wrapper {
+      margin-top: 20px;
+      margin-bottom: 15px; /* Margem extra de segurança no final do form */
+    }
+  }
