@@ -11,7 +11,7 @@ export function CarrosselLateral({ imagens }: CarrosselLateralProps) {
 
   return (
     <div className="carrossel-container">
-      {/* O "Trilho" onde as imagens deslizam */}
+      
       <div 
         className="carrossel-track" 
         style={{ transform: `translateX(-${imagemAtiva * 100}%)` }}
