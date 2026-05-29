@@ -20,6 +20,9 @@ export function useLogin() {
       let metodo = "";
       let valorPuro = identificacao;
 
+      if (identificacao == ""){
+        throw new Error("Campo não pode está vazio")
+      }
       if (identificacao.includes("@")) {
         if (!validarEmail(identificacao)) throw new Error("E-mail inválido");
         metodo = "e_mail";
@@ -30,9 +33,6 @@ export function useLogin() {
       }
 
       const resposta = await realizarLogin(valorPuro, senha, metodo);
-      
-      // Sucesso! Salva o token (se houver) e navega para a Home
-      console.log("Login realizado com sucesso:", resposta);
       navigate("/home"); 
 
     } catch (err: any) {

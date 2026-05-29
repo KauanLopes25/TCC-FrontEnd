@@ -1,0 +1,122 @@
+/* Container Principal do Menu Lateral */
+.sidebar-container {
+  width: 260px;
+  height: 100vh; /* Ocupa a tela toda de cima a baixo */
+  background-color: #ffffff;
+  border-right: 1px solid #eaeaea; /* A linha sutil separando do conteúdo */
+  display: flex;
+  flex-direction: column;
+  position: sticky; /* Fica fixo na tela mesmo se o usuário rolar o conteúdo à direita */
+  top: 0;
+  left: 0;
+}
+
+/* =========================================
+   1. TOPO (Logo)
+   ========================================= */
+.sidebar-header {
+  padding: 30px 24px;
+}
+
+.sidebar-header h2 {
+  color: #3ba1f2;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+/* =========================================
+   2. MEIO (Navegação)
+   ========================================= */
+.sidebar-nav {
+  flex: 1; /* Empurra o footer lá para baixo */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+/* O "TouchableOpacity" da Web */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #666666;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.nav-icon {
+  font-size: 1.4rem;
+}
+
+/* Efeito Hover (Quando passa o mouse) */
+.nav-item:hover {
+  background-color: #f5f9ff;
+  color: #3ba1f2;
+}
+
+/* A Mágica do NavLink (Equivalente ao seu estaAtivo === true) */
+.nav-item.active {
+  background-color: #3ba1f2;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(59, 161, 242, 0.3); /* Um glow azul para destacar */
+}
+
+/* =========================================
+   3. BASE (Perfil)
+   ========================================= */
+.sidebar-footer {
+  padding: 20px 16px;
+  border-top: 1px solid #eaeaea;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.profile-info:hover {
+  background-color: #f9f9f9;
+}
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Evita que e-mails gigantes quebrem o layout */
+}
+
+.profile-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #333;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.profile-email {
+  font-size: 0.8rem;
+  color: #888;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
