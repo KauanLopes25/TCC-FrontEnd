@@ -1,0 +1,44 @@
+/* =========================================
+   O WRAPPER GLOBAL DA ÁREA LOGADA
+   ========================================= */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f7f6; /* Um fundo cinza bem claro para o Menu Branco saltar aos olhos */
+}
+
+/* =========================================
+   A ÁREA DE CONTEÚDO (Lado Direito)
+   ========================================= */
+.dashboard-content {
+  flex: 1; /* Pega 100% do espaço que sobrou depois dos 260px do Menu Lateral */
+  padding: 40px 50px;
+  
+  /* Se o usuário tiver muitos pedidos, a barra de rolagem aparece só aqui, 
+     deixando o Menu Lateral paradinho no lugar dele */
+  overflow-y: auto; 
+  height: 100vh;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+
+.dashboard-header p {
+  color: #666;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    /* Topo: 20px | Direita: 15px | Fundo: 100px (Protege da barra) | Esquerda: 15px */
+    padding: 20px 15px 20px 0px; 
+  }
+  
+  .dashboard-header h1 {
+    font-size: 1.5rem;
+  }
+}

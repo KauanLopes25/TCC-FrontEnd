@@ -33,15 +33,16 @@
   flex: 1; /* Empurra o footer lá para baixo */
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 50px;
   padding: 0 16px;
+  margin-top: 50px;
 }
 
 /* O "TouchableOpacity" da Web */
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 50px;
   padding: 14px 16px;
   border-radius: 12px;
   text-decoration: none;
@@ -119,4 +120,55 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+}
+
+/* =========================================
+   RESPONSIVIDADE (Menu Inferior no Celular)
+   ========================================= */
+@media (max-width: 768px) {
+  .sidebar-container {
+    width: 100%;
+    height: 75px; /* Altura fixa para a barra inferior */
+    flex-direction: row; /* Coloca os itens lado a lado */
+    position: fixed; /* Prende na tela */
+    top: auto; /* Remove a âncora do topo */
+    gap: 0;
+    bottom: 0; /* Âncora no fundo da tela */
+    border-right: none;
+    border-top: 1px solid #eaeaea;
+    z-index: 1000; /* Garante que fique por cima de tudo */
+  }
+
+  /* Esconde a Logo e o Perfil para economizar espaço */
+  .sidebar-header, 
+  .sidebar-footer {
+    display: none;
+  }
+
+  /* Ajusta os botões para ficarem espalhados por igual */
+  .sidebar-nav {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    padding: 0px;
+    margin-top: 0px;
+  }
+
+  /* O botão deixa de ser uma linha e vira uma coluninha (Ícone em cima, texto pequeno embaixo) */
+  .nav-item {
+    flex-direction: column;
+    padding: 0px;
+    gap: 4px;
+    border-radius: 8px;
+    justify-content: center;
+  }
+
+  .nav-icon {
+    font-size: 1.5rem;
+  }
+
+  .nav-item span {
+    font-size: 0.7rem; /* Texto bem pequeno igual em apps nativos */
+  }
 }
