@@ -1,0 +1,150 @@
+/* =========================================
+   CONTAINERS PRINCIPAIS
+   ========================================= */
+.step-header-container {
+  width: 100%;
+  padding: 30px 20px;
+  background-color: transparent;
+  border-bottom: none;
+  display: flex;
+  justify-content: center;
+}
+
+.stepper-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  position: relative;
+}
+
+/* =========================================
+   AS LINHAS DE PROGRESSO (Atrás dos Círculos)
+   ========================================= */
+.progress-line-bg {
+  position: absolute;
+  top: 31px; /* Exatamente a metade do outer-circle (62 / 2) */
+  left: 31px;
+  transform: translateY(-50%);
+  width: calc(100% - 62px);
+  height: 20px;
+  background-color: #ffffff;
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.progress-line-fill {
+  height: 100%;
+  background-color: #3ba1f2; /* Azul SempreLimpa */
+  border-radius: 4px;
+  transition: width 0.4s ease-in-out;
+}
+
+/* =========================================
+   ESTRUTURA DOS CÍRCULOS E TEXTOS
+   ========================================= */
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2; /* Fica sempre à frente da barra de progresso */
+  width: 62px;
+}
+
+/* O anel externo invisível por padrão */
+.outer-circle {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: 2px solid transparent; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent; /* Fundo branco para apagar a barra que passa por trás */
+  transition: all 0.3s ease;
+}
+
+/* O círculo base com os números */
+.inner-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 2px solid #e0e0e0;
+  color: #999999;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.step-label {
+  position: absolute;
+  top: 75px;
+  white-space: nowrap;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #999999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+/* =========================================
+   ESTADOS DINÂMICOS (O Azul Entra em Ação)
+   ========================================= */
+
+/* 1. ATIVO (O Passo Atual - Ganha o anel externo e o miolo azul) */
+.step-item.active .outer-circle {
+  border-color: #3ba1f2;
+}
+
+.step-item.active .inner-circle {
+  background-color: #3ba1f2;
+  border-color: #3ba1f2;
+  color: #ffffff;
+}
+
+.step-item.active .step-label {
+  color: #3ba1f2;
+  font-weight: 700;
+}
+
+/* 2. CONCLUÍDO (Passos Anteriores - Fica azul, mas perde o anel externo) */
+.step-item.completed .inner-circle {
+  background-color: #3ba1f2;
+  border-color: #3ba1f2;
+  color: #ffffff;
+}
+
+.step-item.completed .step-label {
+  color: #333333;
+}
+
+/* =========================================
+   RESPONSIVIDADE (Telas menores)
+   ========================================= */
+@media (max-width: 600px) {
+  .outer-circle {
+    width: 52px;
+    height: 52px;
+  }
+  
+  .inner-circle {
+    width: 42px;
+    height: 42px;
+    font-size: 0.9rem;
+  }
+  
+  .progress-line-bg {
+    top: 26px; /* Reajusta a barra para a nova metade de 52px */
+  }
+  
+  .step-label {
+    font-size: 0.75rem;
+  }
+}

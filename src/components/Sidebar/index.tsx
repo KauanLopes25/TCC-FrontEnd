@@ -15,7 +15,7 @@ export function Sidebar() {
       
       {/* 1. TOPO: Título da Plataforma */}
       <div className="sidebar-header">
-        <h2>SempreLimpa</h2>
+        <h2>Sempre Limpa</h2>
       </div>
 
       {/* 2. MEIO: Navegação (O NavLink cuida do 'estaAtivo' sozinho) */}

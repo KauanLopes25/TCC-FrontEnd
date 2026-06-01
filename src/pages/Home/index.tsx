@@ -1,11 +1,10 @@
+import { Background } from '../../components/Background';
 import { Sidebar } from '../../components/Sidebar';
 import './home.css';
 
 export function Home() {
   return (
-    <div className="dashboard-layout">
-      {/* LADO ESQUERDO: O Menu Fixo */}
-      <Sidebar />
+    <Background>
       
       {/* LADO DIREITO: O Conteúdo Dinâmico */}
       <main className="dashboard-content">
@@ -20,6 +19,6 @@ export function Home() {
         </div>
 
       </main>
-    </div>
+    </Background>
   );
 }

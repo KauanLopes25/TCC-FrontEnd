@@ -5,7 +5,6 @@ import { BackButton } from '../../components/BackButton';
 import { useLogin } from '../../hooks/useLogin';
 import { Link } from 'react-router-dom'; // Para o "Esqueci minha senha"
 import '../Cadastro/cadastro.css'; // Reutiliza o CSS do cadastro
-import './login.css'; // Estilos específicos do login
 import { colors } from '../../themes/colors';
 
 export function Login() {

@@ -5,8 +5,10 @@ import { Welcome } from '../pages/Welcome';
 import { Login } from '../pages/Login';
 import { Cadastro } from '../pages/Cadastro';
 import { RecuperarSenha } from '../pages/RecuperarSenha';
-
+import { Lavanderias } from '../pages/Lavanderias'
 import { Home } from '../pages/Home';
+
+import { DashboardLayout } from '../layouts/DashboardLayout';
 
 export function AppRoutes() {
   return (
@@ -15,8 +17,11 @@ export function AppRoutes() {
         <Route path="/" element={<Welcome />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
-        <Route path="/home" element={<Home />} />
         <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+        <Route element={<DashboardLayout/>}>
+          <Route path='/home' element={<Home/>}/>
+          <Route path="/lavanderias" element={<Lavanderias />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

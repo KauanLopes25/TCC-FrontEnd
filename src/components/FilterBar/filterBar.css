@@ -1,0 +1,98 @@
+/* Container que segura tudo */
+.filter-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Espaço entre o input e os botões */
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* =========================================
+   INPUT DE BUSCA
+   ========================================= */
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 52px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05); /* Sombreado leve para flutuar no degradê */
+  transition: box-shadow 0.3s ease;
+}
+
+.search-wrapper:focus-within {
+  box-shadow: 0 4px 20px rgba(59, 161, 242, 0.2); /* Brilho azul ao clicar */
+  border: 1px solid #3ba1f2;
+}
+
+.search-icon {
+  font-size: 1.5rem;
+  color: #999999;
+  margin-right: 12px;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  color: #333333;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: #bbbbbb;
+}
+
+/* =========================================
+   BOTÕES DE FILTRO (Chips)
+   ========================================= */
+.filter-chips-wrapper {
+  display: flex;
+  gap: 12px;
+  
+  /* Permite que os botões rolem para o lado no celular em vez de quebrarem a tela */
+  overflow-x: auto; 
+  padding-bottom: 8px; /* Espaço para a barra de rolagem (se aparecer) */
+  scrollbar-width: none; /* Esconde a scrollbar no Firefox */
+}
+
+/* Esconde a scrollbar no Chrome/Safari */
+.filter-chips-wrapper::-webkit-scrollbar {
+  display: none; 
+}
+
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: 20px; /* Bordas bem redondas tipo pílula */
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666666;
+  cursor: pointer;
+  white-space: nowrap; /* Impede o texto de quebrar linha */
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.filter-icon {
+  font-size: 1.1rem;
+}
+
+.filter-chip:hover {
+  background-color: #f4f7f6;
+}
+
+/* ESTADO ATIVO DO BOTÃO */
+.filter-chip.active {
+  background-color: #3ba1f2;
+  border-color: #3ba1f2;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(59, 161, 242, 0.3);
+}
