@@ -11,7 +11,7 @@ export function DashboardLayout() {
       <div className="dashboard-layout">
         <Sidebar />
         
-        {/* 2. O PULO DO GATO: Removemos o backgroundColor cinza daqui! */}
+        
         <main className="dashboard-content" style={{ padding: 0, backgroundColor: 'transparent' }}>
           
           <Outlet />

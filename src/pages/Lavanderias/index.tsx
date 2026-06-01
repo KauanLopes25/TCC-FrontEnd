@@ -1,115 +1,102 @@
-import { useSteeper } from '../../hooks/useSteeper';
-import { StepHeader } from '../../components/StepHeader';
-import { Background } from '../../components/Background';
-// Repare que não precisamos mais importar a Sidebar aqui!
 import { useState } from 'react';
+import { useSteeper } from '../../hooks/useSteeper'; // Corrigido de useSteeper para useStepper
+import { StepHeader } from '../../components/StepHeader';
 import { FilterBar } from '../../components/FilterBar';
+import { LaundryCard } from '../../components/LaundryCard';
+
+const lavanderiasMock = [
+  { id: 1, nome: 'SempreLimpa Centro', bairro: 'Centro', cidade: 'Jandira', avaliacao: 4.8, lat: -23.5280, lng: -46.9050 },
+  { id: 2, nome: 'Expresso Jardim', bairro: 'Jardim Alvorada', cidade: 'Jandira', avaliacao: 4.5, lat: -23.5312, lng: -46.9030 },
+  { id: 3, nome: 'Lava Rápido Fátima', bairro: 'Vila Fátima', cidade: 'Jandira', avaliacao: 4.9, lat: -23.5240, lng: -46.9100 }
+];
+
 export function Lavanderias() {
-  // Chamamos o nosso Hook mágico
+  // 1. O motor do Cabeçalho
   const { 
     passoAtual, 
     circuloAtivo, 
     porcentagem, 
-    proximoPasso, 
-    passoAnterior 
+    proximoPasso 
   } = useSteeper();
 
+  // 2. Os Estados de Filtro e Favoritos
   const [busca, setBusca] = useState('');
   const [filtrosSelecionados, setFiltrosSelecionados] = useState<string[]>([]);
+  const [favoritos, setFavoritos] = useState<number[]>([1]); // ID 1 já vem favoritado
+
+  const lidarComFavorito = (id: number) => {
+    setFavoritos(prev => 
+      prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
+    );
+  };
 
   const lidarComCliqueNoFiltro = (nomeDoFiltro: string) => {
     setFiltrosSelecionados((filtrosAnteriores) => {
-      // Se o filtro clicado JÁ ESTIVER na lista, nós removemos ele (desligar)
       if (filtrosAnteriores.includes(nomeDoFiltro)) {
         return filtrosAnteriores.filter((filtro) => filtro !== nomeDoFiltro);
-      } 
-      // Se NÃO ESTIVER na lista, nós adicionamos ele junto com os outros (ligar)
-      else {
+      } else {
         return [...filtrosAnteriores, nomeDoFiltro];
       }
     });
-
-    // Se quiser abrir o modal de distância:
-    if (nomeDoFiltro === 'distancia' && !filtrosSelecionados.includes('distancia')) {
-      // abrirModalDeDistancia();
-    }
   };
+
   return (
-  <Background>
-    <div style={{ width: '100%', height: '100%' }}>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
       
-      {/* 1. O CABEÇALHO PROGRESSIVO */}
+      {/* =========================================
+          O CABEÇALHO PROGRESSIVO (Sempre visível)
+          ========================================= */}
       <StepHeader circuloAtivo={circuloAtivo} porcentagem={porcentagem} />
 
-      {/* 2. ÁREA DE CONTEÚDO DINÂMICO (Background interno) */}
-      <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
-        
-        {/* Renderização condicional baseada no "passoAtual" (de 1 a 6) */}
-        {passoAtual === 1 && (
-          <div>
-            <h2>Selecione uma Lavanderia</h2>
-            <p>Lista de lavanderias próximas aparecerá aqui...</p>
-          </div>
-        )}
 
-        {passoAtual === 2 && (
-          <div>
-            <h2>Detalhes da Lavanderia e Início do Cesto</h2>
-            <p>Carregando máquinas e produtos...</p>
-          </div>
-        )}
-
-        {passoAtual === 3 && (
-          <div>
-            <h2>Seu Cesto de Roupas</h2>
-            <p>Revise seus itens...</p>
-          </div>
-        )}
-        
-        {/* BOTÕES DE TESTE PARA VER A BARRA ANDAR */}
-        <div style={{ marginTop: '50px', display: 'flex', gap: '15px' }}>
-          <button 
-            onClick={passoAnterior} 
-            disabled={passoAtual === 1}
-            style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #ccc', cursor: 'pointer' }}
-          >
-            Voltar Etapa
-          </button>
+      {/* =========================================
+          PASSO 01: SELEÇÃO DE LAVANDERIA
+          ========================================= */}
+      {passoAtual === 1 && (
+        <div style={{ padding: '40px 20px', maxWidth: '900px', margin: '0 auto', width: '100%' }}>
           
-          <button 
-            onClick={proximoPasso} 
-            disabled={passoAtual === 6}
-            style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: '#3ba1f2', color: '#fff', border: 'none', cursor: 'pointer' }}
-          >
-            Avançar Etapa
-          </button>
+          <FilterBar 
+            valorBusca={busca}
+            aoMudarBusca={setBusca}
+            filtrosAtivos={filtrosSelecionados} 
+            aoClicarFiltro={lidarComCliqueNoFiltro}
+          />
+
+          <div className="lista-lavanderias" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '30px' }}>
+            {lavanderiasMock.map(lav => (
+              <LaundryCard 
+                key={lav.id}
+                id={lav.id}
+                nome={lav.nome}
+                bairro={lav.bairro}
+                cidade={lav.cidade}
+                avaliacao={lav.avaliacao}
+                isFavorito={favoritos.includes(lav.id)} 
+                onAlternarFavorito={lidarComFavorito}
+                onSelecionar={(id) => {
+                  // A mágica acontece aqui: ao selecionar, você guarda os dados da lavanderia 
+                  // e avança o passo, fazendo a tela de seleção sumir e o Cesto aparecer.
+                  console.log(`Lavanderia ${id} selecionada!`);
+                  proximoPasso();
+                }}
+              />
+            ))}
+          </div>
+
         </div>
+      )}
 
-      </div>
-    </div>
 
-    <div style={{ padding: '20px' }}>
-      
-      {/* O seu componente novo, limpo e encapsulado */}
-      <div style={{ padding: '20px' }}>
-      
-      <FilterBar 
-        valorBusca={busca}
-        aoMudarBusca={setBusca}
-        // MUDANÇA 2: Passamos o Array inteiro para o componente
-        filtrosAtivos={filtrosSelecionados} 
-        aoClicarFiltro={lidarComCliqueNoFiltro}
-      />
-
-      <div style={{ marginTop: '30px' }}>
-         <p>Buscando por: {busca}</p>
-         {/* O .join(', ') serve só para mostrar os itens separados por vírgula na tela para você testar */}
-         <p>Filtros ativados: {filtrosSelecionados.join(', ')}</p> 
-      </div>
+      {/* =========================================
+          PASSO 02: O CESTO
+          ========================================= */}
+      {passoAtual === 2 && (
+        <div style={{ padding: '40px 20px', maxWidth: '900px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
+          <h2 style={{ color: '#333' }}>O seu Cesto</h2>
+          <p style={{ color: '#666' }}>A interface de adicionar roupas será montada aqui...</p>
+        </div>
+      )}
 
     </div>
-
-    </div>
-  </Background>
   );
 }
