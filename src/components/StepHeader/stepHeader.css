@@ -1,0 +1,158 @@
+.step-header-container {
+  width: 100%;
+  padding: 30px 20px;
+  background-color: transparent;
+  border-bottom: none;
+  display: flex;
+  justify-content: center;
+}
+
+.stepper-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  position: relative;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  width: 140px; 
+}
+
+.outer-circle {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: 2px solid transparent; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent; 
+  transition: all 0.3s ease;
+}
+
+.inner-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 2px solid #e0e0e0;
+  color: #999999;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.step-label {
+  margin-top: 10px; 
+  font-size: 0.85rem; 
+  font-weight: 600;
+  color: #999999;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.3;
+  white-space: normal; 
+  word-wrap: break-word;
+  transition: all 0.3s ease;
+}
+
+.progress-line-bg {
+  position: absolute;
+  top: 31px; 
+  left: 70px; 
+  transform: translateY(-50%);
+  width: calc(100% - 140px); 
+  height: 20px;
+  background-color: #ffffff;
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.progress-line-fill {
+  height: 100%;
+  background-color: #3ba1f2; 
+  border-radius: 4px;
+  transition: width 0.4s ease-in-out;
+}
+
+.step-item.active .outer-circle {
+  border-color: #3ba1f2;
+}
+
+.step-item.active .inner-circle {
+  background-color: #3ba1f2;
+  border-color: #3ba1f2;
+  color: #ffffff;
+}
+
+.step-item.active .step-label {
+  color: #3ba1f2;
+  font-weight: 700;
+}
+
+.step-item.completed .inner-circle {
+  background-color: #3ba1f2;
+  border-color: #3ba1f2;
+  color: #ffffff;
+}
+
+.step-item.completed .step-label {
+  color: #333333;
+}
+
+@media (max-width: 1150px) {
+  .step-header-container {
+    padding: 30px 60px; 
+  }
+}
+
+@media (max-width: 768px) {
+  .step-item {
+    width: 90px; 
+  }
+  
+  .progress-line-bg {
+    left: 45px; 
+    width: calc(100% - 90px);
+  }
+}
+
+@media (max-width: 600px) {
+  .step-header-container {
+    /* Reduzimos o padding lateral para dar o máximo de espaço útil no meio da tela */
+    padding: 30px 10px; 
+  }
+
+  .outer-circle {
+    width: 52px;
+    height: 52px;
+  }
+  
+  .inner-circle {
+    width: 42px;
+    height: 42px;
+    font-size: 0.9rem;
+  }
+  
+  .progress-line-bg {
+    top: 26px;
+  }
+  
+  .step-label {
+    font-size: 0.65rem; /* Fonte um fio de cabelo menor */
+    letter-spacing: -0.3px; /* "Espreme" as letras delicadamente para caber mais na mesma linha */
+    
+    /* As regras salvadoras para palavras gigantes: */
+    word-break: break-word; 
+    hyphens: auto; /* Se o navegador precisar quebrar ACOMPANHAMENTO, ele vai colocar um "-" automático */
+  }
+}

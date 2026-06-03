@@ -1,0 +1,89 @@
+.laundry-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Efeito ao passar o mouse: Sobe levemente e ganha uma borda azul */
+.laundry-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(59, 161, 242, 0.15);
+  border-color: #3ba1f2;
+}
+
+/* =========================================
+   INFORMAÇÕES (Lado Esquerdo)
+   ========================================= */
+.laundry-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.laundry-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333333;
+  margin: 0;
+}
+
+.laundry-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #888888;
+  font-size: 0.9rem;
+}
+
+.location-icon {
+  font-size: 1.1rem;
+}
+
+.laundry-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #333333;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-top: 4px;
+}
+
+.star-icon {
+  color: #ffc107; /* Amarelo ouro para a estrela */
+  font-size: 1.2rem;
+}
+
+/* =========================================
+   BOTÃO DE FAVORITO (Lado Direito)
+   ========================================= */
+.heart-button {
+  background: transparent;
+  border: none;
+  font-size: 1.8rem;
+  color: #cccccc; /* Cor padrão cinza */
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.heart-button:hover {
+  background-color: #fff0f2;
+  color: #ff4d4f;
+}
+
+/* Estado ativo (Coração preenchido) */
+.heart-button.favorited {
+  color: #ff4d4f; /* Vermelho vivo */
+}

@@ -1,0 +1,50 @@
+/* =========================================
+   ESTRUTURA GLOBAL DA ÁREA LOGADA
+   ========================================= */
+
+.dashboard-layout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   ÁREA DE CONTEÚDO DINÂMICO (Lado Direito)
+   ========================================= */
+.dashboard-content {
+  flex: 1; /* Preenche 100% do espaço restante ao lado do menu lateral */
+  height: 100vh;
+  
+  /* Cria uma barra de rolagem independente apenas para o conteúdo da página,
+     fazendo com que o menu lateral fique perfeitamente fixo no lugar */
+  overflow-y: auto; 
+  
+  padding: 40px 50px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* =========================================
+   RESPONSIVIDADE (Ecrãs de Telemóvel)
+   ========================================= */
+@media (max-width: 768px) {
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .dashboard-content {
+    /* Ajuste crucial de espaçamento:
+      Top: 20px | Right: 15px | Bottom: 100px | Left: 15px
+      
+      O padding de 100px no fundo é obrigatório porque o menu inferior 
+      está fixado com 'position: fixed'. Este espaço evita que os últimos 
+      elementos ou botões da página fiquem escondidos por trás do menu.
+    */
+    padding: 20px 15px 100px 15px; 
+    
+    /* Repassa o controlo da rolagem para a página inteira no telemóvel */
+    height: auto;
+    overflow-y: visible;
+  }
+}

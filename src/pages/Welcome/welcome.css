@@ -378,6 +378,37 @@
     padding: 6px 12px;
     font-size: 0.85rem;
   }
+
+  .hero-section {
+    flex-direction: column; /* Quebra o lado a lado e coloca um debaixo do outro */
+    text-align: center;     /* Centraliza os textos */
+    padding: 40px 20px;
+    gap: 40px;              /* Espaço entre o texto e o carrossel */
+  }
+
+  /* Ajusta o título gigante para caber na tela pequena */
+  .hero-content h1 {
+    font-size: 2.5rem;
+  }
+
+  /* Centraliza o parágrafo */
+  .hero-content p {
+    margin: 0 auto 20px auto;
+  }
+
+  /* Centraliza os botões e permite que desçam de linha se apertar muito */
+  .hero-btns {
+    justify-content: center;
+    flex-wrap: wrap; 
+    margin-bottom: 30px;
+  }
+
+  /* Achata o carrossel para ele caber bonito embaixo do texto */
+  .hero-image {
+    width: 100%;
+    height: 350px; 
+    max-width: 100%;
+  }
 }
 /* =========================================
    ESTATÍSTICAS DA HERO (Indicadores)
