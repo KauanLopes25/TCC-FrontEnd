@@ -27,6 +27,7 @@ export const buscarLavanderias = async (
     }
 
     const url = `${BASE_URL}lavanderia/filtro?${params.toString()}`;
+    console.log("🚀 URL DISPARADA ->", url);
 
     const response = await fetch(url, {
         method: "GET",
@@ -40,4 +41,30 @@ export const buscarLavanderias = async (
     }
 
     return data; 
+};
+
+export const favoritar = async (usuarioId: number, lavanderiaId: number) => {
+    const response = await fetch(`${BASE_URL}favorito`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usuario_id: usuarioId, lavanderia_id: lavanderiaId })
+    });
+    console.log(response)
+    if (!response.ok) throw new Error("Erro ao salvar favorito");
+    return await response.json();
+};
+
+export const desfavoritar = async (usuarioId: number, lavanderiaId: number) => {
+    // Colocamos os IDs direto na URL com o ? e o &
+    
+    const url = `${BASE_URL}favorito?usuario_id=${usuarioId}&lavanderia_id=${lavanderiaId}`;
+    console.log("🗑️ URL DO DELETE:", url);
+    const response = await fetch(url, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" }
+        // Removemos o 'body' daqui!
+    });
+   
+    if (!response.ok) throw new Error("Erro ao remover favorito");
+    return await response.json();
 };
