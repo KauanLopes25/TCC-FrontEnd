@@ -30,7 +30,7 @@
    A ÁREA DE ROLAGEM E ESPAÇAMENTO
    ========================================= */
 .card-lista-pedidos {
-  width: 80%;             /* 1. Faz o container ocupar apenas 80% da área limitada */
+  width: 100%;             /* 1. Faz o container ocupar apenas 80% da área limitada */
   margin: 0 auto;         /* 2. Centraliza esse container no meio da tela */
   background-color: #fff;
   border: none;
