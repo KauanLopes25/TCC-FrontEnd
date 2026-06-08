@@ -1,14 +1,21 @@
+import React, { useState } from 'react'; // 1. Importar useState
 import { useSteeper } from '../../hooks/useSteeper';
-import { useLavanderia } from '../../hooks/useLavanderia'; // Nosso novo Hook!
+import { useLavanderia } from '../../hooks/useLavanderia'; 
 import { StepHeader } from '../../components/StepHeader';
 import { FilterBar } from '../../components/FilterBar';
 import { LaundryCard } from '../../components/LaundryCard';
 import { LocationFilter } from '../../components/LocationFilter'; 
 
+// 2. Importar a nova tela de Detalhes
+import { DetalhesLavanderia } from '../DetalhesLavanderia'; 
+
 export function Lavanderias() {
-  const { passoAtual, circuloAtivo, porcentagem, proximoPasso } = useSteeper();
+  // 3. Adicionar a função de voltar do seu hook (ajuste o nome se for diferente)
+  const { passoAtual, circuloAtivo, porcentagem, proximoPasso, passoAnterior } = useSteeper();
   
-  // Extraindo tudo do nosso Hook customizado
+  // 4. Estado para guardar a lavanderia que o usuário clicou
+  const [idLavanderiaSelecionada, setIdLavanderiaSelecionada] = useState<number | null>(null);
+  
   const {
     busca, setBusca,
     filtrosSelecionados, lidarComCliqueNoFiltro,
@@ -52,26 +59,22 @@ export function Lavanderias() {
               <p style={{ textAlign: 'center', color: '#666', marginTop: '40px' }}>Nenhuma lavanderia encontrada.</p>
             ) : (
               lavanderiasParaExibir.map(lav => {
-                // 1. Isolamos o ID real que vem da sua view do MySQL
                 const idReal = lav.lavanderia_id;
 
                 return (
                   <LaundryCard 
-                    // 2. Agora o React sabe identificar cada card individualmente
                     key={idReal}
                     id={idReal}
-                    
                     nome={lav.nome || 'Lavanderia Indisponível'} 
                     bairro={lav.bairro || 'Bairro não informado'}
                     cidade={lav.cidade || 'Cidade não informada'}
                     avaliacao={Number(lav.media_avaliacao) || 0}
-                    
-                    // 3. A verificação do coração agora usa o ID correto
                     isFavorito={favoritos.includes(idReal)} 
-                    
                     onAlternarFavorito={lidarComFavorito}
+                    
+                    // 5. Salva o ID no estado antes de pular para o passo 2
                     onSelecionar={(idSelecionado) => {
-                      console.log(`Avançando com a lavanderia ID: ${idSelecionado}`);
+                      setIdLavanderiaSelecionada(idSelecionado);
                       proximoPasso();
                     }}
                   />
@@ -83,8 +86,17 @@ export function Lavanderias() {
       )}
 
       {passoAtual === 2 && (
+        <DetalhesLavanderia 
+          idLavanderia={idLavanderiaSelecionada}
+          onVoltar={passoAnterior} 
+          onAvancar={proximoPasso} 
+        />
+      )}
+
+      
+      {passoAtual === 3 && (
         <div style={{ padding: '40px 20px', maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
-          <h2>O seu Cesto</h2>
+          <h2>O seu Cesto de Roupas</h2>
         </div>
       )}
 

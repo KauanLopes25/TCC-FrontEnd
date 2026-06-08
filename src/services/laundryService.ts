@@ -27,7 +27,6 @@ export const buscarLavanderias = async (
     }
 
     const url = `${BASE_URL}lavanderia/filtro?${params.toString()}`;
-    console.log("🚀 URL DISPARADA ->", url);
 
     const response = await fetch(url, {
         method: "GET",
@@ -49,7 +48,7 @@ export const favoritar = async (usuarioId: number, lavanderiaId: number) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ usuario_id: usuarioId, lavanderia_id: lavanderiaId })
     });
-    console.log(response)
+ 
     if (!response.ok) throw new Error("Erro ao salvar favorito");
     return await response.json();
 };
@@ -58,7 +57,6 @@ export const desfavoritar = async (usuarioId: number, lavanderiaId: number) => {
     // Colocamos os IDs direto na URL com o ? e o &
     
     const url = `${BASE_URL}favorito?usuario_id=${usuarioId}&lavanderia_id=${lavanderiaId}`;
-    console.log("🗑️ URL DO DELETE:", url);
     const response = await fetch(url, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" }
@@ -66,5 +64,16 @@ export const desfavoritar = async (usuarioId: number, lavanderiaId: number) => {
     });
    
     if (!response.ok) throw new Error("Erro ao remover favorito");
+    return await response.json();
+};
+
+
+export const buscarDetalhesLavanderia = async (idLavanderia: number) => {
+    const response = await fetch(`${BASE_URL}lavanderia/${idLavanderia}`);
+    
+    if (!response.ok) {
+        throw new Error("Erro ao buscar os detalhes da lavanderia no servidor.");
+    }
+    
     return await response.json();
 };
