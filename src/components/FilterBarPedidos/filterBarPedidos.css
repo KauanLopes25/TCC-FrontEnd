@@ -1,0 +1,185 @@
+/* =========================================
+   BARRA DE FILTROS DE PEDIDOS
+   ========================================= */
+.filter-bar-pedidos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 50px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0 12px;
+  font-size: 1rem;
+  color: #333;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: #a0a0a0;
+}
+
+.filtros-pedidos-grupo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-filtro-pedido {
+  background-color: #f5f5f5;
+  color: #666;
+  border: 1px solid transparent;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-filtro-pedido:hover {
+  background-color: #e8e8e8;
+}
+
+/* O estado ATIVO dos filtros de status */
+.btn-filtro-pedido.ativo {
+  background-color: #e1f0fc; /* Azul bem clarinho */
+  color: #3ba1f2;
+  border-color: #3ba1f2;
+}
+
+.divisor-filtros {
+  width: 1px;
+  height: 24px;
+  background-color: #dcdcdc;
+  margin: 0 4px;
+}
+
+.btn-filtro-data {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  color: #666;
+  border: 1px solid #dcdcdc;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-filtro-data:hover {
+  border-color: #999;
+}
+
+/* O estado ATIVO do filtro de Data */
+.btn-filtro-data.data-ativa {
+  background-color: #3ba1f2;
+  color: #ffffff;
+  border-color: #3ba1f2;
+}
+
+/* =========================================
+   MODAL DE DATA
+   ========================================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Fica por cima de tudo */
+}
+
+.modal-content-data {
+  background-color: #ffffff;
+  width: 90%;
+  max-width: 350px;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.btn-fechar-modal {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+}
+
+.btn-fechar-modal:hover {
+  color: #333;
+}
+
+.modal-body-data {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.opcao-data {
+  background-color: #f9f9f9;
+  border: 1px solid #eaeaea;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #555;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.opcao-data:hover {
+  background-color: #f0f0f0;
+}
+
+.opcao-data.selecionada {
+  background-color: #e1f0fc;
+  border-color: #3ba1f2;
+  color: #3ba1f2;
+  font-weight: 600;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

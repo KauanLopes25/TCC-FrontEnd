@@ -7,6 +7,7 @@ import { Cadastro } from '../pages/Cadastro';
 import { RecuperarSenha } from '../pages/RecuperarSenha';
 import { Lavanderias } from '../pages/Lavanderias'
 import { Home } from '../pages/Home';
+import { MeusPedidos } from '../pages/MeusPedidos';
 
 import { DashboardLayout } from '../layouts/DashboardLayout';
 
@@ -19,8 +20,9 @@ export function AppRoutes() {
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/recuperar-senha" element={<RecuperarSenha />} />
         <Route element={<DashboardLayout/>}>
-          <Route path='/home' element={<Home/>}/>
+          <Route path="/home" element={<Home/>}/>
           <Route path="/lavanderias" element={<Lavanderias />} />
+          <Route path="pedidos" element={<MeusPedidos/>}/>
         </Route>
       </Routes>
     </BrowserRouter>
