@@ -26,10 +26,16 @@
 /* =========================================
    A ÁREA DE ROLAGEM E ESPAÇAMENTO
    ========================================= */
+/* =========================================
+   A ÁREA DE ROLAGEM E ESPAÇAMENTO
+   ========================================= */
 .card-lista-pedidos {
+  width: 80%;             /* 1. Faz o container ocupar apenas 80% da área limitada */
+  margin: 0 auto;         /* 2. Centraliza esse container no meio da tela */
   background-color: #fff;
   border: none;
   box-shadow: none;
+  border-radius: 20px;
 }
 
 .lista-scroll-container {
@@ -37,8 +43,10 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px; 
-  padding: 5px 10px 20px 5px; 
+  gap: 20px;              /* 3. Aumentamos um pouquinho o espaço entre um pedido e outro (de 16px para 20px) */
+  
+  /* 4. O SEGREDO DO RESPÍRO: Padding interno para os cards azuis não grudarem nas bordas do card pai ou na barra de rolagem */
+  padding: 10px 24px 30px 10px; 
 }
 
 /* Customização da barra de rolagem */
@@ -46,11 +54,11 @@
   width: 8px;
 }
 .lista-scroll-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent; /* Deixa o fundo do scroll invisível para não sujar o design */
   border-radius: 4px;
 }
 .lista-scroll-container::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: #d1d1d1;
   border-radius: 4px;
 }
 .lista-scroll-container::-webkit-scrollbar-thumb:hover {
@@ -68,7 +76,7 @@
   
   /* A cor base da aplicação agora é o fundo */
   background-color: #3ba1f2; 
-  border-radius: 16px; 
+  border-radius: 20px; 
   border: none;
   
   box-shadow: 0 6px 15px rgba(59, 161, 242, 0.2); 
