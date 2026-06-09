@@ -1,12 +1,28 @@
 import React, { useState } from 'react';
-import { FiShoppingBag, FiPlus, FiMinus } from 'react-icons/fi';
+import { FiShoppingBag, FiPlus, FiMinus, FiX, FiTag, FiBox } from 'react-icons/fi';
+// 1. Importando ícones específicos de roupas
+import { FaTshirt, FaSocks } from 'react-icons/fa';
+import { GiTrousers } from 'react-icons/gi'; 
+
 import { useCesto } from '../../hooks/useCesto';
-import './MontagemCesto.css'; 
+import './montagemCesto.css'; 
 
 interface MontagemCestoProps {
   onVoltar: () => void;
   onAvancar: () => void;
 }
+
+// Catálogo simulando o que virá do Banco de Dados
+const catalogoCompleto = [
+  { id: 1, nome: 'Camiseta', cor: 'Branca', tipo: 'camisa' },
+  { id: 2, nome: 'Calça', cor: 'Jeans Azul', tipo: 'calca' },
+  { id: 3, nome: 'Cobertor', cor: 'Estampado', tipo: 'outro' },
+  { id: 4, nome: 'Meias', cor: 'Colorida', tipo: 'meia' },
+  { id: 5, nome: 'Bermuda', cor: 'Preta', tipo: 'calca' },
+  { id: 6, nome: 'Saia', cor: 'Vermelha', tipo: 'calca' },
+  { id: 7, nome: 'Camisa Polo', cor: 'Azul Escuro', tipo: 'camisa' },
+  { id: 8, nome: 'Blusa de Frio', cor: 'Cinza', tipo: 'camisa' },
+];
 
 export function MontagemCesto({ onVoltar, onAvancar }: MontagemCestoProps) {
   const {
@@ -17,19 +33,42 @@ export function MontagemCesto({ onVoltar, onAvancar }: MontagemCestoProps) {
     adicionarCesto,
     selecionarCesto,
     alterarQuantidadeRoupa,
-    calcularTotalPecas
+    calcularTotalPecas,
+    removerCesto
   } = useCesto();
 
-  // NOVO ESTADO: Controla se estamos na tela de ver as roupas do cesto ou buscando novas
   const [modoAdicionarRoupa, setModoAdicionarRoupa] = useState(false);
 
-  const pecasBase = [
-    { id: 1, nome: 'Camiseta' },
-    { id: 2, nome: 'Calça' },
-    { id: 3, nome: 'Cobertor' }
+  // Selecionando as peças base para ficarem sempre visíveis
+  const pecasBase = catalogoCompleto.filter(p => [1, 2, 3].includes(p.id));
+
+  // Itens da Adição Rápida
+  const itensRapidos = [
+    { ...catalogoCompleto.find(c => c.id === 4)! }, // Meias
+    { ...catalogoCompleto.find(c => c.id === 1)! }, // Camiseta
+    { ...catalogoCompleto.find(c => c.id === 2)! }, // Calça
   ];
 
   const porcentagemProgresso = (totalPecasAtivas / cestoAtivo.limiteMaximo) * 100;
+  const cestoVazioGlobal = cestos.reduce((acc, c) => acc + calcularTotalPecas(c), 0) === 0;
+
+  // LÓGICA DE OURO: Junta as peças base com as roupas extras que o usuário adicionou pelo catálogo
+  const itensExtrasNoCesto = Object.keys(cestoAtivo.itens)
+    .map(Number)
+    .filter(id => cestoAtivo.itens[id] > 0 && !pecasBase.find(p => p.id === id))
+    .map(id => catalogoCompleto.find(c => c.id === id)!);
+
+  const listaParaExibir = [...pecasBase, ...itensExtrasNoCesto];
+
+  // Função para renderizar o ícone de acordo com o tipo da roupa
+  const renderIcone = (tipo: string) => {
+    switch(tipo) {
+      case 'camisa': return <FaTshirt size={24} />;
+      case 'calca': return <GiTrousers size={24} />;
+      case 'meia': return <FaSocks size={24} />;
+      default: return <FiBox size={24} />;
+    }
+  };
 
   return (
     <div className="cesto-etapa-container">
@@ -50,9 +89,22 @@ export function MontagemCesto({ onVoltar, onAvancar }: MontagemCestoProps) {
                 className={`mini-card-cesto ${isAtivo ? 'ativo' : ''}`}
                 onClick={() => {
                   selecionarCesto(cesto.id);
-                  setModoAdicionarRoupa(false); // Volta pra visualização normal ao trocar de cesto
+                  setModoAdicionarRoupa(false); 
                 }}
               >
+                {cestos.length > 1 && (
+                  <button 
+                    type="button"
+                    className="btn-remover-cesto"
+                    onClick={(e) => {
+                      e.stopPropagation(); 
+                      removerCesto(cesto.id);
+                    }}
+                  >
+                    <FiX size={12} />
+                  </button>
+                )}
+
                 <div className="icone-cesto-wrapper">
                   <FiShoppingBag size={24} />
                 </div>
@@ -71,31 +123,62 @@ export function MontagemCesto({ onVoltar, onAvancar }: MontagemCestoProps) {
           </div>
         </div>
 
-        {/* ÁREA DINÂMICA (Troca de conteúdo baseada no estado) */}
         <div className="secao-detalhes-cesto-ativo">
           
           {modoAdicionarRoupa ? (
             
-            // CONTEÚDO 2: Tela de Adicionar Novas Roupas (Faremos no próximo passo)
+            // ==========================================
+            // TELA DO CATÁLOGO DE ROUPAS
+            // ==========================================
             <div className="area-nova-roupa">
-              <h4>Adicionar nova peça ao Cesto {cestos.findIndex(c => c.id === idCestoAtivo) + 1}</h4>
-              <p style={{ color: '#666', margin: '20px 0' }}>[ Aqui vai entrar o catálogo completo de roupas e a barra de busca ]</p>
-              
-              <button 
-                className="btn-navegacao-voltar" 
-                onClick={() => setModoAdicionarRoupa(false)}
-              >
-                Cancelar e Voltar
-              </button>
+              <div className="header-catalogo">
+                <div>
+                  <h4>Catálogo de Roupas</h4>
+                  <p>Adicionando ao Cesto {cestos.findIndex(c => c.id === idCestoAtivo) + 1}</p>
+                </div>
+                <button 
+                  className="btn-fechar-catalogo" 
+                  onClick={() => setModoAdicionarRoupa(false)}
+                >
+                  <FiX size={24} />
+                </button>
+              </div>
+
+              <div className="grid-catalogo-roupas">
+                {catalogoCompleto.map((item) => (
+                  <div key={item.id} className={`card-catalogo-item ${totalPecasAtivas >= cestoAtivo.limiteMaximo ? 'desativado' : ''}`}>
+                    <div className="icone-catalogo-wrapper">
+                      {renderIcone(item.tipo)}
+                    </div>
+                    
+                    <div className="info-catalogo-roupa">
+                      <span className="nome-catalogo-roupa">{item.nome}</span>
+                      <span className="cor-catalogo-roupa">{item.cor}</span>
+                    </div>
+
+                    <button 
+                      className="btn-add-catalogo-roupa"
+                      disabled={totalPecasAtivas >= cestoAtivo.limiteMaximo}
+                      onClick={() => {
+                        alterarQuantidadeRoupa(item.id, 'somar');
+                        setModoAdicionarRoupa(false); // Dispara a roupa e volta pra tela inicial
+                      }}
+                    >
+                      <FiPlus size={20} />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
           ) : (
             
-            // CONTEÚDO 1: Visão padrão do Cesto Ativo
+            // ==========================================
+            // TELA INICIAL DO CESTO
+            // ==========================================
             <>
               <h4>Itens no Cesto {cestos.findIndex(c => c.id === idCestoAtivo) + 1}</h4>
 
-              {/* 1. BARRINHA DE PROGRESSO (Movida para cima com marginBottom para não grudar na lista) */}
               <div className="container-progresso-cesto" style={{ marginBottom: '24px' }}>
                 <div className="info-texto-progresso">
                   <span>Capacidade do cesto</span>
@@ -112,14 +195,17 @@ export function MontagemCesto({ onVoltar, onAvancar }: MontagemCestoProps) {
                 )}
               </div>
               
-              {/* 2. ITENS BASE */}
               <div className="lista-selecao-roupas">
-                {pecasBase.map((roupa) => {
+                {/* Agora usamos a lista unificada (Base + Extras que o usuário escolheu) */}
+                {listaParaExibir.map((roupa) => {
                   const quantidadeNoCesto = cestoAtivo.itens[roupa.id] || 0;
 
                   return (
                     <div key={roupa.id} className="linha-roupa-seletor">
-                      <span className="nome-roupa-peca">{roupa.nome}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="nome-roupa-peca">{roupa.nome}</span>
+                        <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{roupa.cor}</span>
+                      </div>
                       
                       <div className="controles-contador">
                         <button 
@@ -147,30 +233,59 @@ export function MontagemCesto({ onVoltar, onAvancar }: MontagemCestoProps) {
                 })}
               </div>
 
-              {/* 3. BOTÃO PONTILHADO PARA ADICIONAR NOVAS ROUPAS */}
+              <div className="secao-adicionar-rapido">
+                <span className="titulo-secao-rapida">Adicionar rápido</span>
+                <div className="grid-itens-rapidos">
+                  {itensRapidos.map((item, i) => (
+                    <div 
+                      key={i} 
+                      className={`card-item-rapido ${totalPecasAtivas >= cestoAtivo.limiteMaximo ? 'desativado' : ''}`}
+                      onClick={() => {
+                        if (totalPecasAtivas < cestoAtivo.limiteMaximo) {
+                          alterarQuantidadeRoupa(item.id, 'somar');
+                        }
+                      }}
+                    >
+                      <div className="icone-rapido-wrapper">
+                        {renderIcone(item.tipo)}
+                      </div>
+                      <div className="textos-rapidos">
+                        <span className="nome-rapido">{item.nome}</span>
+                        <span className="detalhe-rapido">{item.cor}</span>
+                      </div>
+                      <div className="btn-add-rapido">
+                        <FiPlus size={16} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <button 
                 className="btn-adicionar-roupa-larga" 
                 onClick={() => setModoAdicionarRoupa(true)}
               >
                 <FiPlus size={20} />
-                <span>Adicionar roupa</span>
+                <span>Ver todas as roupas</span>
               </button>
             </>
           )}
 
         </div>
+
+        <div className="footer-interno-cesto">
+          <button onClick={onVoltar} className="btn-voltar-interno">Voltar etapa</button>
+          <button 
+            onClick={onAvancar} 
+            className="btn-confirmar-cesto"
+            disabled={cestoVazioGlobal}
+          >
+            Confirmar cesto
+          </button>
+        </div>
+
       </div>
 
-      <div className="botoes-navegacao-footer">
-        <button onClick={onVoltar} className="btn-navegacao-voltar">Voltar</button>
-        <button 
-          onClick={onAvancar} 
-          className="btn-navegacao-avancar"
-          disabled={cestos.reduce((acc, c) => acc + calcularTotalPecas(c), 0) === 0}
-        >
-          Ir para Pagamento
-        </button>
-      </div>
     </div>
   );
 }

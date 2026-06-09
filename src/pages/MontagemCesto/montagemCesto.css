@@ -1,6 +1,9 @@
+/* =========================================
+   ESTRUTURA PRINCIPAL
+   ========================================= */
 .cesto-etapa-container {
   padding: 40px 20px;
-  maxWidth: 900px;
+  max-width: 900px;
   margin: 0 auto;
   width: 100%;
 }
@@ -13,12 +16,130 @@
   width: 100%;
 }
 
+.header-cesto h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 600;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+/* =========================================
+   GRID E MINI CARDS (LADO A LADO)
+   ========================================= */
+.grid-mini-cestos {
+  display: flex;
+  flex-wrap: wrap; /* Permite que quebrem para a linha de baixo se não couber */
+  gap: 16px;
+  align-items: flex-start; /* Impede que eles estiquem para baixo */
+}
+
+.mini-card-cesto {
+  position: relative; /* Essencial para o posicionamento absoluto do botão X */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 16px 20px;
+  width: max-content;
+  flex: 0 0 auto; 
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* O Estilo do Botão "X" de remover */
+.btn-remover-cesto {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #dc3545; /* Vermelho */
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  /* Efeito de Feedback Visual: fica semi-invisível e ganha cor total no hover do card */
+  opacity: 0.3;
+  transition: all 0.2s ease;
+}
+
+.mini-card-cesto:hover .btn-remover-cesto {
+  opacity: 1;
+}
+
+.btn-remover-cesto:hover {
+  background-color: #bd2130; /* Vermelho mais escuro ao passar o rato direto no X */
+  transform: scale(1.1);
+}
+
+.mini-card-cesto:hover {
+  border-color: #007bff; 
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.1);
+  transform: translateY(-2px);
+}
+
 .mini-card-cesto.ativo {
   border-color: #007bff;
   background-color: #f1f7ff;
 }
 
-/* Detalhes do Cesto Selecionado */
+.icone-cesto-wrapper {
+  color: #007bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.textos-mini-cesto {
+  display: flex;
+  flex-direction: column;
+}
+
+.titulo-cesto {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.quantidade-cesto {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 2px;
+}
+
+/* Botão pontilhado pequeno (Adicionar Cesto) */
+.mini-card-adicionar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px; 
+  min-height: 70px;
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  background-color: transparent;
+  color: #999;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mini-card-adicionar:hover {
+  border-color: #007bff;
+  color: #007bff;
+  background-color: #f1f7ff;
+}
+
+/* =========================================
+   DETALHES DO CESTO (LISTA E BARRA)
+   ========================================= */
 .secao-detalhes-cesto-ativo {
   margin-top: 35px;
   border-top: 1px solid #eee;
@@ -31,7 +152,49 @@
   color: #444;
 }
 
-/* Lista de Roupas */
+/* Componente da Barra de Progresso */
+.container-progresso-cesto {
+  background-color: #fafbfc;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #f0f1f2;
+}
+
+.info-texto-progresso {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.barra-progresso-fundo {
+  width: 100%;
+  height: 12px;
+  background-color: #e9ecef;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.barra-progresso-preenchimento {
+  height: 100%;
+  background-color: #007bff; /* Trocado para AZUL */
+  border-radius: 6px;
+  transition: width 0.3s ease-in-out;
+}
+
+.aviso-cesto-cheio {
+  color: #dc3545;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 8px;
+  text-align: left;
+}
+
+/* =========================================
+   LISTA DE ROUPAS E BOTÕES 
+   ========================================= */
 .lista-selecao-roupas {
   display: flex;
   flex-direction: column;
@@ -91,47 +254,34 @@
   text-align: center;
 }
 
-/* Componente da Barra de Progresso */
-.container-progresso-cesto {
-  background-color: #fafbfc;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #f0f1f2;
-}
-
-.info-texto-progresso {
+/* Botão Pontilhado Largo (Adicionar Roupa) */
+.btn-adicionar-roupa-larga {
   display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 10px;
-}
-
-.barra-progresso-fundo {
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
-  height: 12px;
-  background-color: #e9ecef;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.barra-progresso-preenchimento {
-  height: 100%;
-  background-color: #28a745; /* Verde para indicar o enchimento */
-  border-radius: 6px;
-  transition: width 0.3s ease-in-out; /* Efeito de carregamento fluido */
-}
-
-.aviso-cesto-cheio {
-  color: #dc3545;
-  font-size: 0.8rem;
+  padding: 18px;
+  background-color: transparent;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  color: #64748b;
   font-weight: 600;
-  margin-top: 8px;
-  text-align: left;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 10px;
 }
 
-/* Footer de Navegação */
+.btn-adicionar-roupa-larga:hover {
+  border-color: #007bff;
+  color: #007bff;
+  background-color: #f8fbff;
+}
+
+/* =========================================
+   FOOTER (VOLTAR / AVANÇAR)
+   ========================================= */
 .botoes-navegacao-footer {
   display: flex;
   justify-content: space-between;
@@ -162,27 +312,289 @@
   cursor: not-allowed;
 }
 
-/* Botão Pontilhado Largo (Adicionar Roupa) */
-.btn-adicionar-roupa-larga {
+/* =========================================
+   SEÇÃO ADICIONAR RÁPIDO
+   ========================================= */
+.secao-adicionar-rapido {
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.titulo-secao-rapida {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.grid-itens-rapidos {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto; /* Permite scroll horizontal se houver muitos itens rápidos */
+  padding-bottom: 8px; /* Espaço para a barra de scroll não cortar os cards */
+}
+
+/* Esconde a barra de rolagem visualmente, mas mantém a função */
+.grid-itens-rapidos::-webkit-scrollbar {
+  height: 4px;
+}
+.grid-itens-rapidos::-webkit-scrollbar-thumb {
+  background-color: #e2e8f0;
+  border-radius: 4px;
+}
+
+.card-item-rapido {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-width: max-content;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card-item-rapido:hover:not(.desativado) {
+  border-color: #007bff;
+  background-color: #f8fbff;
+  transform: translateY(-2px);
+}
+
+.card-item-rapido.desativado {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icone-rapido-wrapper {
+  color: #64748b;
+  display: flex;
+  align-items: center;
+}
+
+.textos-rapidos {
+  display: flex;
+  flex-direction: column;
+}
+
+.nome-rapido {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.detalhe-rapido {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.btn-add-rapido {
+  margin-left: 8px;
+  color: #007bff;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: 18px;
-  background-color: transparent;
-  border: 2px dashed #cbd5e1;
-  border-radius: 8px;
-  color: #64748b;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 10px;
+  background-color: #eef2ff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
 }
 
-.btn-adicionar-roupa-larga:hover {
-  border-color: #007bff;
+.card-item-rapido:hover:not(.desativado) .btn-add-rapido {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* =========================================
+   FOOTER INTERNO (DENTRO DO CARD BRANCO)
+   ========================================= */
+.footer-interno-cesto {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+  padding-top: 25px;
+  border-top: 1px solid #eee;
+}
+
+.btn-voltar-interno {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.btn-voltar-interno:hover {
+  color: #333;
+}
+
+.btn-confirmar-cesto {
+  padding: 14px 32px;
+  border-radius: 8px;
+  border: none;
+  background: #007bff; /* Azul Padrão */
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-confirmar-cesto:hover:not(:disabled) {
+  background: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px rgba(0, 123, 255, 0.3);
+}
+
+.btn-confirmar-cesto:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   TELA DO CATÁLOGO DE ROUPAS
+   ========================================= */
+.area-nova-roupa {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header-catalogo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.header-catalogo h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.header-catalogo p {
+  margin: 4px 0 0 0;
+  font-size: 0.85rem;
   color: #007bff;
-  background-color: #f8fbff;
+  font-weight: 500;
+}
+
+.btn-fechar-catalogo {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 4px;
+}
+
+.btn-fechar-catalogo:hover {
+  color: #dc3545;
+}
+
+/* O Grid de 2 em 2 */
+.grid-catalogo-roupas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+/* Design dos mini cards de roupa do catálogo */
+.card-catalogo-item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.card-catalogo-item:hover:not(.desativado) {
+  border-color: #007bff;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.1);
+}
+
+.card-catalogo-item.desativado {
+  opacity: 0.5;
+  background-color: #f8fafc;
+}
+
+.icone-catalogo-wrapper {
+  color: #64748b;
+  margin-right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f5f9;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+}
+
+.info-catalogo-roupa {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Faz esse bloco crescer e empurrar o botão + para a direita */
+}
+
+.nome-catalogo-roupa {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.cor-catalogo-roupa {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.btn-add-catalogo-roupa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: #eef2ff;
+  color: #007bff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.card-catalogo-item:hover:not(.desativado) .btn-add-catalogo-roupa {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.btn-add-catalogo-roupa:disabled {
+  cursor: not-allowed;
+  color: #94a3b8;
+  background-color: #e2e8f0;
+}
+
+/* Responsividade para telas de celular muito pequenas */
+@media (max-width: 600px) {
+  .grid-catalogo-roupas {
+    grid-template-columns: 1fr; /* Muda para 1 coluna no celular */
+  }
 }
