@@ -25,8 +25,6 @@ export function useCesto() {
   const [catalogoVariavel, setCatalogoVariavel] = useState<any[]>([]); // O catálogo "cozinhado" com cores
   const [carregandoCatalogo, setCarregandoCatalogo] = useState(true);
 
-  // BUSCA E GERAÇÃO DE VARIAÇÕES (GET)
- // FUNÇÃO NOVA: O "Avaliador" de Categorias
   const determinarCategoria = (nomePeca: string) => {
     const nome = nomePeca.toLowerCase();
     

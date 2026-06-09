@@ -1,19 +1,22 @@
-import React, { useState } from 'react'; // Importar useState
+import React, { useState } from 'react';
 import { useSteeper } from '../../hooks/useSteeper';
 import { useLavanderia } from '../../hooks/useLavanderia'; 
 import { StepHeader } from '../../components/StepHeader';
 import { FilterBar } from '../../components/FilterBar';
 import { LaundryCard } from '../../components/LaundryCard';
 import { LocationFilter } from '../../components/LocationFilter'; 
-import { MontagemCesto } from '../MontagemCesto';
+
+// Importando as Telas/Componentes
 import { DetalhesLavanderia } from '../DetalhesLavanderia'; 
+import { MontagemCesto } from '../MontagemCesto';
+
+// IMPORT AJUSTADO: Buscando o CheckoutPedido da pasta components!
+import { CheckoutPedido } from '../../components/CheckoutPedido';
 
 export function Lavanderias() {
   const { passoAtual, circuloAtivo, porcentagem, proximoPasso, passoAnterior } = useSteeper();
   
   const [idLavanderiaSelecionada, setIdLavanderiaSelecionada] = useState<number | null>(null);
-  
-  // AQUI: Estado para guardar os cestos e roupas confirmados no Passo 3
   const [dadosDoPedido, setDadosDoPedido] = useState<any>(null);
   
   const {
@@ -52,7 +55,6 @@ export function Lavanderias() {
           )}
 
           <div className="lista-lavanderias" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '30px' }}>
-            
             {carregando ? (
               <p style={{ textAlign: 'center', color: '#666', marginTop: '40px' }}>Buscando lavanderias...</p>
             ) : lavanderiasParaExibir.length === 0 ? (
@@ -71,7 +73,6 @@ export function Lavanderias() {
                     avaliacao={Number(lav.media_avaliacao) || 0}
                     isFavorito={favoritos.includes(idReal)} 
                     onAlternarFavorito={lidarComFavorito}
-                    
                     onSelecionar={(idSelecionado) => {
                       setIdLavanderiaSelecionada(idSelecionado);
                       proximoPasso();
@@ -92,30 +93,27 @@ export function Lavanderias() {
         />
       )}
 
-      {/* AJUSTE AQUI: Capturando os dados enviados pela tela de Cesto */}
       {passoAtual === 3 && (
         <MontagemCesto
           onVoltar={passoAnterior} 
           onAvancar={(payloadDoCesto: any) => {
-            setDadosDoPedido(payloadDoCesto); // Salva o array de cestos/roupas na memória
-            proximoPasso(); // Segue para a próxima etapa (Passo 4 - Pagamento)
+            setDadosDoPedido(payloadDoCesto); 
+            proximoPasso(); 
           }}
         />
       )}
 
-      {/* PASSO 4 PREPARADO: Onde o JSON vai se transformar em POST no backend */}
+      {/* O Componente do Passo 4 perfeitamente plugado */}
       {passoAtual === 4 && (
-        <div style={{ padding: '40px 20px', maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
-          <h2>Resumo do Pedido e Pagamento</h2>
-          <p style={{ textAlign: 'left', color: '#666' }}>Dados coletados com sucesso. Prontos para envio:</p>
-          <pre style={{ textAlign: 'left', background: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', overflowX: 'auto' }}>
-            {JSON.stringify({ idLavanderiaSelecionada, dadosDoPedido }, null, 2)}
-          </pre>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-            <button onClick={passoAnterior} className="btn-navegacao-voltar">Voltar</button>
-            <button className="btn-navegacao-avancar">Finalizar e Pagar</button>
-          </div>
-        </div>
+        <CheckoutPedido 
+          lavanderia={lavanderias.find(l => l.lavanderia_id === idLavanderiaSelecionada)}
+          dadosDoPedido={dadosDoPedido}
+          onVoltar={passoAnterior}
+          onConfirmar={(dadosFinais) => {
+            console.log("JSON FINAL PRONTO PARA O NODE:", dadosFinais);
+            // Integração futura da Rota POST entra aqui
+          }}
+        />
       )}
 
     </div>

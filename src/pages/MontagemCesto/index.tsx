@@ -44,12 +44,11 @@ export function MontagemCesto({ onVoltar, onAvancar }: MontagemCestoProps) {
   const porcentagemProgresso = (totalPecasAtivas / cestoAtivo.limiteMaximo) * 100;
   const cestoVazioGlobal = cestos.reduce((acc, c) => acc + calcularTotalPecas(c), 0) === 0;
 
-  // Lógica Segura: Usamos fk_roupas_id (o número real) e fixamos a cor 'Branca' para a visualização base
-  const pecasBase = catalogoCompleto.filter(p => [1, 2, 3].includes(p.fk_roupas_id) && p.cor === 'Branca');
+  const pecasBase = catalogoCompleto.filter(p => [5, 6, 7].includes(p.fk_roupas_id) && p.cor === 'Branca');
 
   // Lógica Segura: Itens da Adição Rápida
   const itensRapidos = catalogoCompleto
-    .filter(c => [4, 1, 2].includes(c.fk_roupas_id) && c.cor === 'Branca') 
+    .filter(c => [1, 2, 3].includes(c.fk_roupas_id) && c.cor === 'Branca') 
     .slice(0, 3); 
 
   // Lógica de Ouro: A chave agora é String ("1-branca"). 
