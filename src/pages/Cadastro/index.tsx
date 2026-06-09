@@ -8,7 +8,9 @@ import './cadastro.css';
 export function Cadastro() {
   const { form, acoes, erros } = useCadastro();
 
-  const deveBloquearCampos = form.cep.replace(/\D/g, '').length === 8;
+  // Bloqueia se o CEP estiver preenchido OU se o cadastro já tiver dado sucesso
+  const deveBloquearCampos = form.cep.replace(/\D/g, '').length === 8 || !!form.sucesso;
+  const telaBloqueadaPorSucesso = !!form.sucesso;
 
   return (
     <Background>
@@ -19,6 +21,13 @@ export function Cadastro() {
 
             <h2>Cadastre-se</h2>
             
+            {/* Bloco Dinâmico de Mensagem de Sucesso */}
+            {form.sucesso && (
+              <div className="alerta-sucesso-global">
+                <p>{form.sucesso}</p>
+              </div>
+            )}
+            
             <form onSubmit={acoes.finalizarCadastro} className="form-grid">
               
               <div className="full-width">
@@ -26,6 +35,7 @@ export function Cadastro() {
                   label="Nome" 
                   value={form.nome} 
                   onChange={(e) => form.setNome(e.target.value)} 
+                  readOnly={telaBloqueadaPorSucesso}
                 />
                 {erros.nome && <span className="error-text">{erros.nome}</span>}
               </div>
@@ -36,6 +46,7 @@ export function Cadastro() {
                   type="email" 
                   value={form.e_mail} 
                   onChange={(e) => form.setEmail(e.target.value)} 
+                  readOnly={telaBloqueadaPorSucesso}
                 />
                 {erros.e_mail && <span className="error-text">{erros.e_mail}</span>}
               </div>
@@ -45,7 +56,8 @@ export function Cadastro() {
                   label="Telefone" 
                   value={form.telefone} 
                   onChange={(e) => form.setTelefone(e.target.value)} 
-                  maxLength={15} /* Limita (11) 99999-9999 */
+                  maxLength={15}
+                  readOnly={telaBloqueadaPorSucesso}
                 />
                 {erros.telefone && <span className="error-text">{erros.telefone}</span>}
               </div>
@@ -55,7 +67,8 @@ export function Cadastro() {
                   label="CPF" 
                   value={form.cpf} 
                   onChange={(e) => form.setCpf(e.target.value)} 
-                  maxLength={14} /* Limita 000.000.000-00 */
+                  maxLength={14}
+                  readOnly={telaBloqueadaPorSucesso}
                 />
                 {erros.cpf && <span className="error-text">{erros.cpf}</span>}
               </div>
@@ -66,6 +79,7 @@ export function Cadastro() {
                   type="date" 
                   value={form.dataNascimento} 
                   onChange={(e) => form.setDataNascimento(e.target.value)} 
+                  readOnly={telaBloqueadaPorSucesso}
                 />
                 {erros.dataNascimento && <span className="error-text">{erros.dataNascimento}</span>}
               </div>
@@ -76,6 +90,7 @@ export function Cadastro() {
                   placeholder="Masculino/Feminino" 
                   value={form.genero} 
                   onChange={(e) => form.setGenero(e.target.value)} 
+                  readOnly={telaBloqueadaPorSucesso}
                 />
               </div>
 
@@ -84,7 +99,8 @@ export function Cadastro() {
                   label="CEP" 
                   value={form.cep} 
                   onChange={(e) => acoes.atualizarCep(e.target.value)} 
-                  maxLength={9} /* Limita 00000-000 */
+                  maxLength={9}
+                  readOnly={telaBloqueadaPorSucesso}
                 />
                 {erros.cep && <span className="error-text">{erros.cep}</span>}
               </div>
@@ -123,6 +139,7 @@ export function Cadastro() {
                   label="Número" 
                   value={form.numero} 
                   onChange={(e) => form.setNumero(e.target.value)} 
+                  readOnly={telaBloqueadaPorSucesso}
                 />
                 {erros.numero && <span className="error-text">{erros.numero}</span>}
               </div>
@@ -132,6 +149,7 @@ export function Cadastro() {
                   label="Complemento" 
                   value={form.complemento} 
                   onChange={(e) => form.setComplemento(e.target.value)} 
+                  readOnly={telaBloqueadaPorSucesso}
                 />
               </div>
 
@@ -141,6 +159,7 @@ export function Cadastro() {
                   type="password" 
                   value={form.senha} 
                   onChange={(e) => form.setSenha(e.target.value)} 
+                  readOnly={telaBloqueadaPorSucesso}
                 />
                 {erros.senha && <span className="error-text">{erros.senha}</span>}
               </div>
@@ -169,8 +188,8 @@ export function Cadastro() {
                     <input 
                     type="checkbox" 
                     id="terms" 
-                    // Tiramos o "required" e agora o React controla ele:
                     checked={form.termosAceitos}
+                    disabled={telaBloqueadaPorSucesso}
                     onChange={(e) => form.setTermosAceitos(e.target.checked)}
                     />
                     <label htmlFor="terms">Termos de condição de uso da aplicação</label>
@@ -179,7 +198,13 @@ export function Cadastro() {
                 </div>
 
               <div className="full-width btn-wrapper">
-                <Button type="submit" variant="primary">Finalizar</Button>
+                <Button 
+                  type="submit" 
+                  variant="primary" 
+                  disabled={form.carregando || telaBloqueadaPorSucesso}
+                >
+                  {form.carregando ? 'Cadastrando...' : 'Finalizar'}
+                </Button>
               </div>
             </form>
           </div>

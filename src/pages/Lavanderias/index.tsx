@@ -5,6 +5,7 @@ import { StepHeader } from '../../components/StepHeader';
 import { FilterBar } from '../../components/FilterBar';
 import { LaundryCard } from '../../components/LaundryCard';
 import { LocationFilter } from '../../components/LocationFilter'; 
+import { MontagemCesto } from '../MontagemCesto';
 
 // 2. Importar a nova tela de Detalhes
 import { DetalhesLavanderia } from '../DetalhesLavanderia'; 
@@ -95,9 +96,9 @@ export function Lavanderias() {
 
       
       {passoAtual === 3 && (
-        <div style={{ padding: '40px 20px', maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
-          <h2>O seu Cesto de Roupas</h2>
-        </div>
+        <MontagemCesto
+          onVoltar={passoAnterior} 
+          onAvancar={proximoPasso}/>
       )}
 
     </div>
