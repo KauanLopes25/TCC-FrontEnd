@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // 1. Importar useState
+import React, { useState } from 'react'; // Importar useState
 import { useSteeper } from '../../hooks/useSteeper';
 import { useLavanderia } from '../../hooks/useLavanderia'; 
 import { StepHeader } from '../../components/StepHeader';
@@ -6,16 +6,15 @@ import { FilterBar } from '../../components/FilterBar';
 import { LaundryCard } from '../../components/LaundryCard';
 import { LocationFilter } from '../../components/LocationFilter'; 
 import { MontagemCesto } from '../MontagemCesto';
-
-// 2. Importar a nova tela de Detalhes
 import { DetalhesLavanderia } from '../DetalhesLavanderia'; 
 
 export function Lavanderias() {
-  // 3. Adicionar a função de voltar do seu hook (ajuste o nome se for diferente)
   const { passoAtual, circuloAtivo, porcentagem, proximoPasso, passoAnterior } = useSteeper();
   
-  // 4. Estado para guardar a lavanderia que o usuário clicou
   const [idLavanderiaSelecionada, setIdLavanderiaSelecionada] = useState<number | null>(null);
+  
+  // AQUI: Estado para guardar os cestos e roupas confirmados no Passo 3
+  const [dadosDoPedido, setDadosDoPedido] = useState<any>(null);
   
   const {
     busca, setBusca,
@@ -73,7 +72,6 @@ export function Lavanderias() {
                     isFavorito={favoritos.includes(idReal)} 
                     onAlternarFavorito={lidarComFavorito}
                     
-                    // 5. Salva o ID no estado antes de pular para o passo 2
                     onSelecionar={(idSelecionado) => {
                       setIdLavanderiaSelecionada(idSelecionado);
                       proximoPasso();
@@ -94,11 +92,30 @@ export function Lavanderias() {
         />
       )}
 
-      
+      {/* AJUSTE AQUI: Capturando os dados enviados pela tela de Cesto */}
       {passoAtual === 3 && (
         <MontagemCesto
           onVoltar={passoAnterior} 
-          onAvancar={proximoPasso}/>
+          onAvancar={(payloadDoCesto: any) => {
+            setDadosDoPedido(payloadDoCesto); // Salva o array de cestos/roupas na memória
+            proximoPasso(); // Segue para a próxima etapa (Passo 4 - Pagamento)
+          }}
+        />
+      )}
+
+      {/* PASSO 4 PREPARADO: Onde o JSON vai se transformar em POST no backend */}
+      {passoAtual === 4 && (
+        <div style={{ padding: '40px 20px', maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
+          <h2>Resumo do Pedido e Pagamento</h2>
+          <p style={{ textAlign: 'left', color: '#666' }}>Dados coletados com sucesso. Prontos para envio:</p>
+          <pre style={{ textAlign: 'left', background: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', overflowX: 'auto' }}>
+            {JSON.stringify({ idLavanderiaSelecionada, dadosDoPedido }, null, 2)}
+          </pre>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+            <button onClick={passoAnterior} className="btn-navegacao-voltar">Voltar</button>
+            <button className="btn-navegacao-avancar">Finalizar e Pagar</button>
+          </div>
+        </div>
       )}
 
     </div>

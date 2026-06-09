@@ -11,7 +11,7 @@ export const buscarCatalogoRoupas = async () => {
     }
 
     const resultado = await response.json();
-    
+    console.log(resultado)
     // Validação do padrão de envelopamento do seu backend
     if (resultado.status_code === 200) {
       // Retorna o objeto completo para que o Hook decida se extrai de .items, .dados, etc.
