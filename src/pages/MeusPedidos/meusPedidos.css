@@ -1,0 +1,271 @@
+/* =========================================
+   LAYOUT PRINCIPAL
+   ========================================= */
+.pedidos-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 40px;
+  padding-bottom: 60px;
+}
+
+.conteudo-principal-pedidos {
+  width: 80%;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.header-pedidos h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+/* =========================================
+   A ÁREA DE ROLAGEM E ESPAÇAMENTO
+   ========================================= */
+/* =========================================
+   A ÁREA DE ROLAGEM E ESPAÇAMENTO
+   ========================================= */
+.card-lista-pedidos {
+  width: 100%;             /* 1. Faz o container ocupar apenas 80% da área limitada */
+  margin: 0 auto;         /* 2. Centraliza esse container no meio da tela */
+  background-color: #fff;
+  border: none;
+  box-shadow: none;
+  border-radius: 20px;
+}
+
+.lista-scroll-container {
+  max-height: 550px; 
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;              /* 3. Aumentamos um pouquinho o espaço entre um pedido e outro (de 16px para 20px) */
+  
+  /* 4. O SEGREDO DO RESPÍRO: Padding interno para os cards azuis não grudarem nas bordas do card pai ou na barra de rolagem */
+  padding: 10px 24px 30px 10px; 
+}
+
+/* Customização da barra de rolagem */
+.lista-scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+.lista-scroll-container::-webkit-scrollbar-track {
+  background: transparent; /* Deixa o fundo do scroll invisível para não sujar o design */
+  border-radius: 4px;
+}
+.lista-scroll-container::-webkit-scrollbar-thumb {
+  background: #d1d1d1;
+  border-radius: 4px;
+}
+.lista-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* =========================================
+   AS LINHAS DO PEDIDO (Fundo Azul SempreLimpa)
+   ========================================= */
+.pedido-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  
+  /* A cor base da aplicação agora é o fundo */
+  background-color: #3ba1f2; 
+  border-radius: 20px; 
+  border: none;
+  
+  box-shadow: 0 6px 15px rgba(59, 161, 242, 0.2); 
+  transition: all 0.3s ease;
+}
+
+/* Efeito hover escurece levemente o azul */
+.pedido-item-row:hover {
+  background-color: #2b84cd; 
+  transform: translateY(-2px); 
+  box-shadow: 0 8px 20px rgba(59, 161, 242, 0.3);
+}
+
+/* =========================================
+   INFO ESQUERDA (Ícone e Textos)
+   ========================================= */
+.pedido-info-esquerda {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1; 
+}
+
+/* Fundo semi-transparente para o ícone se destacar no fundo azul */
+.icone-cesto-wrapper {
+  width: 50px;
+  height: 50px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Força o ícone do cesto a ficar branco, não importa o que venha do TSX */
+.icone-cesto-wrapper svg {
+  color: #ffffff !important;
+}
+
+.pedido-textos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.linha-topo-textos {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Textos em Branco */
+.pedido-numero {
+  font-weight: bold;
+  color: #ffffff; 
+  font-size: 1.1rem;
+}
+
+/* Texto de apoio em um tom bem claro, quase branco, para dar hierarquia */
+.pedido-detalhes {
+  color: #eaf4fd; 
+  font-size: 0.9rem;
+}
+
+/* =========================================
+   BADGES DE STATUS (Mantidas as Cores Originais)
+   ========================================= */
+.badge-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+  text-align: center;
+  /* Uma leve sombra para destacar o badge do fundo azul intenso */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+
+.badge-status.entregue {
+  background-color: #e6f6ea;
+  color: #28a745;
+}
+
+.badge-status.andamento {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.badge-status.cancelado {
+  background-color: #fdeaea;
+  color: #dc3545;
+}
+
+/* =========================================
+   AÇÕES DIREITA E BOTÃO VISUALIZAR
+   ========================================= */
+.pedido-acoes-direita {
+  display: flex;
+  align-items: center;
+  padding-left: 20px; 
+}
+
+/* Botão: Fundo Branco, Texto Azul */
+.btn-visualizar-pedido {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  color: #3ba1f2;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.btn-visualizar-pedido:hover {
+  background-color: #f0f8ff; /* Fica levemente azulado ao passar o mouse */
+  transform: scale(1.02);
+}
+
+/* =========================================
+   CARREGAR MAIS (Paginação)
+   ========================================= */
+.carregar-mais-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.btn-carregar-mais {
+  background: none;
+  border: none;
+  color: #999;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px;
+  text-decoration: underline;
+}
+
+.btn-carregar-mais:hover {
+  color: #3ba1f2;
+}
+
+/* =========================================
+   BADGES DE STATUS (Agora com 5 opções)
+   ========================================= */
+.badge-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+
+/* 1. Aguardando (Amarelo claro) */
+.badge-status.pendente {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* 2. Coletado (Roxo/Azul escuro para diferenciar) */
+.badge-status.coletado {
+  background-color: #e2d9f3;
+  color: #5a32a3;
+}
+
+/* 3. Lavando/Em andamento (Laranja) */
+.badge-status.andamento {
+  background-color: #ffe8cc;
+  color: #e67e22;
+}
+
+/* 4. Entregue (Verde) */
+.badge-status.entregue {
+  background-color: #e6f6ea;
+  color: #28a745;
+}
+
+/* 5. Cancelado (Vermelho) */
+.badge-status.cancelado {
+  background-color: #fdeaea;
+  color: #dc3545;
+}
+

@@ -3,17 +3,20 @@ import { FiArrowLeft } from 'react-icons/fi'; // Puxa a flecha minimalista
 import './backButton.css';
 
 interface BackButtonProps {
-  to?: string; // Caminho opcional para forçar a volta para uma tela específica
+  to?: string;
+  onClick?: () => void; // Adicionamos isso!
 }
 
-export function BackButton({ to }: BackButtonProps) {
+export function BackButton({ to, onClick }: BackButtonProps) {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    if (to) {
-      navigate(to); // Vai para a rota específica (ex: "/")
+    if (onClick) {
+      onClick(); // Se passarmos a função do stepper, ele usa ela!
+    } else if (to) {
+      navigate(to);
     } else {
-      navigate(-1); // Volta para a página anterior do histórico
+      navigate(-1);
     }
   };
 

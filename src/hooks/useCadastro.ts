@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Hook de navegação adicionado
 import { buscarCepViaCep } from "../services/viaCepService"; 
 import { realizarCadastro } from "../services/authService";
 import { 
@@ -17,8 +18,15 @@ import {
 import { mensagensDeERRO } from "../utils/erros";
 
 export function useCadastro() {
+  const navigate = useNavigate(); // Inicializando a navegação
+
   const [erros, setErros] = useState<Record<string, string | null>>({});
   const [mensagemErro, setMensagemErro] = useState<string | null>(null);
+  
+  // Novos estados para controle de UX
+  const [sucesso, setSucesso] = useState<string | null>(null);
+  const [carregando, setCarregando] = useState(false);
+
   const [termosAceitos, setTermosAceitos] = useState(false);
   const [nome, setNome] = useState("");
   const [e_mail, setEmail] = useState("");
@@ -75,6 +83,7 @@ export function useCadastro() {
 
   const finalizarCadastro = async (e?: React.FormEvent) => {
     if (e) e.preventDefault(); 
+    if (sucesso) return false; // Trava para impedir duplo clique
 
     let novosErros: Record<string, string> = {};
 
@@ -89,12 +98,14 @@ export function useCadastro() {
     if (bairro.trim() === '') novosErros.bairro = mensagensDeERRO.preencherCampo.bairro;
     if (!validarSenha(senha)) novosErros.senha = mensagensDeERRO.validacao.senhaFraca;
     if (!termosAceitos) novosErros.termos = "Você precisa aceitar os termos de uso";
+    
     if (Object.keys(novosErros).length > 0) {
       setErros(novosErros);
       return false;
     }
 
     setErros({});
+    setCarregando(true); // Ativa o loading visual na tela
 
     const payloadParaAPI = {
       nome,
@@ -116,10 +127,21 @@ export function useCadastro() {
 
     try {
       await realizarCadastro(payloadParaAPI);
+      
+      // Se a API responder bem, ativamos a mensagem de sucesso
+      setSucesso("Cadastro realizado com sucesso! Redirecionando para o login...");
+      
+      // Segura 2.5 segundos na tela para o usuário ler, e depois manda pro login
+      setTimeout(() => {
+        navigate("/login"); 
+      }, 2500);
+
       return true;
     } catch (error: any) {
       setErros(prev => ({ ...prev, geral: error.message }));
       return false;
+    } finally {
+      setCarregando(false); // Desativa o loading se der erro (se der sucesso, a tela vai mudar de qualquer forma)
     }
   };
 
@@ -132,7 +154,11 @@ export function useCadastro() {
       setDataNascimento, setGenero, 
       cep, rua, numero, complemento, bairro, cidade, estado, buscarCep,
       setCep, setRua, setNumero, setComplemento, setBairro, setCidade, setEstado,
-      senha, setSenha, termosAceitos, setTermosAceitos
+      senha, setSenha, termosAceitos, setTermosAceitos,
+      
+      // Exportando os estados de UX para a tela usar
+      sucesso,
+      carregando
     },
     acoes: { finalizarCadastro, atualizarCep, limparErro },
     erros
