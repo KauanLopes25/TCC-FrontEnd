@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FiMapPin, FiClock, FiCalendar, FiCheck } from 'react-icons/fi';
-import './checkoutPedido.css'; // Importando o CSS local da pasta do componente
+import './checkoutPedido.css'; 
 
 interface CheckoutPedidoProps {
   lavanderia: any;
@@ -14,11 +14,12 @@ export function CheckoutPedido({ lavanderia, dadosDoPedido, onVoltar, onConfirma
   const [opcoesCestos, setOpcoesCestos] = useState<Record<number, string[]>>({});
   const [cupom, setCupom] = useState('');
 
-  const precoNormal = Number(lavanderia?.preco_padrao_lavagem) || 20.00;
-  const precoPesada = precoNormal * 1.5; 
+  // Puxando os valores baseados no banco de dados
+  const precoLavagemNormal = Number(lavanderia?.preco_padrao_lavagem) || 20.00;
+  const precoLavagemPesada = precoLavagemNormal * 1.5; 
   const precoSecagem = Number(lavanderia?.preco_padrao_secagem) || 15.00;
 
-  const taxaMotorista = 12.00;
+  const taxaMotorista = 20.00;
   const taxaKm = 4.50;
   const taxaApp = 6.00;
 
@@ -36,8 +37,9 @@ export function CheckoutPedido({ lavanderia, dadosDoPedido, onVoltar, onConfirma
   const calcularTotalCiclos = () => {
     let total = 0;
     Object.values(opcoesCestos).forEach(opcoes => {
-      if (opcoes.includes('normal')) total += precoNormal;
-      if (opcoes.includes('pesada')) total += precoPesada;
+      // Nomes exatos para bater com os checkboxes abaixo
+      if (opcoes.includes('lavagem_normal')) total += precoLavagemNormal;
+      if (opcoes.includes('lavagem_pesada')) total += precoLavagemPesada;
       if (opcoes.includes('secagem')) total += precoSecagem;
     });
     return total;
@@ -55,7 +57,9 @@ export function CheckoutPedido({ lavanderia, dadosDoPedido, onVoltar, onConfirma
     <div className="checkout-container">
       <div className="checkout-layout">
         
-        {/* COLUNA ESQUERDA */}
+        {/* ==========================================
+            COLUNA ESQUERDA 
+            ========================================== */}
         <div className="coluna-esquerda">
           <div className="card-branco header-lavanderia-checkout">
             <div className="foto-lavanderia-checkout">
@@ -104,24 +108,39 @@ export function CheckoutPedido({ lavanderia, dadosDoPedido, onVoltar, onConfirma
                       <div className="cesto-ciclo-opcoes">
                         <p>Quais serviços este cesto precisa?</p>
                         
-                        <label className={`opcao-checkbox ${opcoesSelecionadas.includes('normal') ? 'ativo' : ''}`}>
-                          <input type="checkbox" checked={opcoesSelecionadas.includes('normal')} onChange={() => toggleOpcao(index, 'normal')} />
+                        {/* Correção: Value exato "lavagem_normal" */}
+                        <label className={`opcao-checkbox ${opcoesSelecionadas.includes('lavagem_normal') ? 'ativo' : ''}`}>
+                          <input 
+                            type="checkbox" 
+                            checked={opcoesSelecionadas.includes('lavagem_normal')} 
+                            onChange={() => toggleOpcao(index, 'lavagem_normal')} 
+                          />
                           <div className="opcao-textos">
                             <span>Lavagem Normal</span>
-                            <small>R$ {precoNormal.toFixed(2)}</small>
+                            <small>R$ {precoLavagemNormal.toFixed(2)}</small>
                           </div>
                         </label>
 
-                        <label className={`opcao-checkbox ${opcoesSelecionadas.includes('pesada') ? 'ativo' : ''}`}>
-                          <input type="checkbox" checked={opcoesSelecionadas.includes('pesada')} onChange={() => toggleOpcao(index, 'pesada')} />
+                        {/* Correção: Value exato "lavagem_pesada" */}
+                        <label className={`opcao-checkbox ${opcoesSelecionadas.includes('lavagem_pesada') ? 'ativo' : ''}`}>
+                          <input 
+                            type="checkbox" 
+                            checked={opcoesSelecionadas.includes('lavagem_pesada')} 
+                            onChange={() => toggleOpcao(index, 'lavagem_pesada')} 
+                          />
                           <div className="opcao-textos">
                             <span>Lavagem Pesada</span>
-                            <small>R$ {precoPesada.toFixed(2)}</small>
+                            <small>R$ {precoLavagemPesada.toFixed(2)}</small>
                           </div>
                         </label>
 
+                        {/* Value "secagem" (já estava correto, mantido para padrão) */}
                         <label className={`opcao-checkbox ${opcoesSelecionadas.includes('secagem') ? 'ativo' : ''}`}>
-                          <input type="checkbox" checked={opcoesSelecionadas.includes('secagem')} onChange={() => toggleOpcao(index, 'secagem')} />
+                          <input 
+                            type="checkbox" 
+                            checked={opcoesSelecionadas.includes('secagem')} 
+                            onChange={() => toggleOpcao(index, 'secagem')} 
+                          />
                           <div className="opcao-textos">
                             <span>Secagem</span>
                             <small>R$ {precoSecagem.toFixed(2)}</small>
@@ -157,7 +176,9 @@ export function CheckoutPedido({ lavanderia, dadosDoPedido, onVoltar, onConfirma
           </div>
         </div>
 
-        {/* COLUNA DIREITA */}
+        {/* ==========================================
+            COLUNA DIREITA 
+            ========================================== */}
         <div className="coluna-direita">
           <div className="card-branco card-resumo-financeiro">
             <h3>Resumo do pedido</h3>
@@ -203,21 +224,27 @@ export function CheckoutPedido({ lavanderia, dadosDoPedido, onVoltar, onConfirma
 
             <div className="acoes-finais">
               <button className="btn-voltar-checkout" onClick={onVoltar}>Voltar</button>
+              
               <button 
                 className="btn-confirmar-pedido"
                 disabled={valorTotalCiclos === 0}
                 onClick={() => {
+                  // O OBJETO JSON EXATO PARA O NODE.JS
                   const pacoteFinal = {
-                    cestosCompletos: dadosDoPedido,
-                    configuracoesCiclos: opcoesCestos,
-                    totais: {
-                      ciclos: valorTotalCiclos,
-                      motorista: taxaMotorista,
-                      km: taxaKm,
-                      app: taxaApp,
-                      totalGeral: valorTotalPedido
-                    }
+                    idLavanderia: lavanderia.lavanderia_id,
+                    resumoFinanceiro: {
+                      valor_ciclos: valorTotalCiclos,
+                      taxa_entrega: taxaMotorista + taxaKm,
+                      taxa_app: taxaApp,
+                      valor_total_pedido: valorTotalPedido
+                    },
+                    cestos: dadosDoPedido.map((cesto, i) => ({
+                      id_cesto_temporario: cesto.id || i + 1,
+                      ciclos_selecionados: opcoesCestos[i] || [],
+                      roupas: cesto.roupas
+                    }))
                   };
+                  
                   onConfirmar(pacoteFinal);
                 }}
               >

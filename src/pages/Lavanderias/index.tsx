@@ -5,6 +5,7 @@ import { StepHeader } from '../../components/StepHeader';
 import { FilterBar } from '../../components/FilterBar';
 import { LaundryCard } from '../../components/LaundryCard';
 import { LocationFilter } from '../../components/LocationFilter'; 
+import { PagamentoPedido } from '../../components/PagamentoPedido';
 
 // Importando as Telas/Componentes
 import { DetalhesLavanderia } from '../DetalhesLavanderia'; 
@@ -18,6 +19,7 @@ export function Lavanderias() {
   
   const [idLavanderiaSelecionada, setIdLavanderiaSelecionada] = useState<number | null>(null);
   const [dadosDoPedido, setDadosDoPedido] = useState<any>(null);
+  const [dadosFinaisPedido, setDadosFinaisPedido] = useState<any>(null);
   
   const {
     busca, setBusca,
@@ -110,8 +112,20 @@ export function Lavanderias() {
           dadosDoPedido={dadosDoPedido}
           onVoltar={passoAnterior}
           onConfirmar={(dadosFinais) => {
-            console.log("JSON FINAL PRONTO PARA O NODE:", dadosFinais);
-            // Integração futura da Rota POST entra aqui
+            setDadosFinaisPedido(dadosFinais);
+            proximoPasso(); // Manda para o Passo 5
+          }}
+        />
+      )}
+      {passoAtual === 5 && dadosFinaisPedido && (
+        <PagamentoPedido 
+          resumoFinanceiro={dadosFinaisPedido.resumoFinanceiro}
+          onVoltar={passoAnterior}
+          onFinalizarPagamento={(metodo, dadosMetodo) => {
+            console.log("INICIANDO FLUXO REAL COM BACKEND:");
+            console.log("1. Payload do Pedido:", dadosFinaisPedido);
+            console.log("2. Método de Pagamento:", metodo, dadosMetodo);
+            // Aqui é onde faremos a mágica do Axios.post('/pedido') no futuro!
           }}
         />
       )}
