@@ -25,3 +25,24 @@ export const buscarPedidosDoUsuario = async (usuario_id: number) => {
     throw error;
   }
 };
+
+
+export const enviarPedidoCompleto = async (payloadDoBanco: any) => {
+  // O fetch aponta para a rota exata que ajustamos no Express
+  const response = await fetch('http://localhost:5000/v1/semprelimpa/pedido-completo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payloadDoBanco)
+  });
+
+  const resultado = await response.json();
+
+  // Verifica o status code do seu padrão de MESSAGES (201 é o sucesso de criação)
+  if (resultado.status_code !== 201) {
+    throw new Error(resultado.message || 'Falha ao processar o pedido no servidor.');
+  }
+
+  return resultado; 
+};

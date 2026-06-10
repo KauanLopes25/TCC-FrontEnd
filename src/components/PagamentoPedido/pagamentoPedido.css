@@ -284,3 +284,92 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================
+   FORMULÁRIO DE NOVO CARTÃO
+   ========================================= */
+.form-novo-cartao-container {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-voltar-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 24px;
+  transition: color 0.2s;
+}
+
+.btn-voltar-form:hover {
+  color: #007bff;
+}
+
+.subtitulo-form {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-top: -8px;
+  margin-bottom: 24px;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.linha-inputs-duplos {
+  display: flex;
+  gap: 16px;
+}
+
+.linha-inputs-duplos .input-group-cartao {
+  flex: 1;
+}
+
+.input-group-cartao {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group-cartao label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-group-cartao input {
+  padding: 14px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.input-group-cartao input:focus {
+  border-color: #007bff;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.btn-acao-principal:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}

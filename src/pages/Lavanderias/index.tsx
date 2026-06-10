@@ -6,7 +6,7 @@ import { FilterBar } from '../../components/FilterBar';
 import { LaundryCard } from '../../components/LaundryCard';
 import { LocationFilter } from '../../components/LocationFilter'; 
 import { PagamentoPedido } from '../../components/PagamentoPedido';
-
+import { usePedido } from '../../hooks/usePedido'; // Ajuste o caminho de pastas se necessário
 // Importando as Telas/Componentes
 import { DetalhesLavanderia } from '../DetalhesLavanderia'; 
 import { MontagemCesto } from '../MontagemCesto';
@@ -16,7 +16,7 @@ import { CheckoutPedido } from '../../components/CheckoutPedido';
 
 export function Lavanderias() {
   const { passoAtual, circuloAtivo, porcentagem, proximoPasso, passoAnterior } = useSteeper();
-  
+  const { criarPedido, processandoPagamento, dadosPagamentoAbacate } = usePedido();
   const [idLavanderiaSelecionada, setIdLavanderiaSelecionada] = useState<number | null>(null);
   const [dadosDoPedido, setDadosDoPedido] = useState<any>(null);
   const [dadosFinaisPedido, setDadosFinaisPedido] = useState<any>(null);
@@ -117,15 +117,52 @@ export function Lavanderias() {
           }}
         />
       )}
+      {/* ==========================================
+          PASSO 5: TELA DE PAGAMENTO FINAL
+          ========================================== */}
       {passoAtual === 5 && dadosFinaisPedido && (
         <PagamentoPedido 
           resumoFinanceiro={dadosFinaisPedido.resumoFinanceiro}
           onVoltar={passoAnterior}
-          onFinalizarPagamento={(metodo, dadosMetodo) => {
-            console.log("INICIANDO FLUXO REAL COM BACKEND:");
-            console.log("1. Payload do Pedido:", dadosFinaisPedido);
-            console.log("2. Método de Pagamento:", metodo, dadosMetodo);
-            // Aqui é onde faremos a mágica do Axios.post('/pedido') no futuro!
+          processando={processandoPagamento} // Passa o estado de loading do hook
+          dadosPix={dadosPagamentoAbacate}   // Passa os dados reais da AbacatePay (QR Code / Copia e Cola)
+          
+          onFinalizarPagamento={async (metodo, dadosMetodo) => {
+            
+            // Montamos o JSON exato que o seu Node.js (criarPedidoCompleto) espera receber
+            const payloadFinalAPI = {
+              usuario_id: 1, // Chumbado temporariamente para o MVP até ter o Context de Login
+              lavanderia_id: dadosFinaisPedido.idLavanderia,
+              
+              // Valores financeiros que vieram calculados do Passo 4
+              valor_ciclos: dadosFinaisPedido.resumoFinanceiro.valor_ciclos,
+              taxa_entrega: dadosFinaisPedido.resumoFinanceiro.taxa_entrega,
+              
+              // Informações do método de pagamento escolhido na UI
+              tipo_pagamento: metodo.toUpperCase(), // Vai como 'PIX' ou 'CARTAO'
+              cartao_id: metodo === 'cartao' ? dadosMetodo.cartaoId : null,
+              tipo_cartao: 'CREDITO', // Padrão para a simulação
+              
+              // O array de cestos contendo os ciclos selecionados e as roupas de cada um
+              cestos: dadosFinaisPedido.cestos 
+            };
+
+            console.log("🚀 Enviando pacote final de Checkout para a API:", payloadFinalAPI);
+
+            // Dispara a função do hook que faz o fetch e se comunica com a AbacatePay
+            const resultado = await criarPedido(payloadFinalAPI);
+
+            if (resultado.sucesso) {
+              if (metodo === 'cartao') {
+                // Se for cartão, o próprio hook já vai ter jogado o usuário para a URL da AbacatePay.
+                // Mas deixamos um log aqui por garantia.
+                console.log("Redirecionando para o checkout seguro...");
+              } else {
+                console.log("Pix gerado com sucesso pelo back-end!");
+              }
+            } else {
+              alert("Erro ao processar o seu pedido. Verifique o console do back-end.");
+            }
           }}
         />
       )}

@@ -1,36 +1,51 @@
 import React, { useState } from 'react';
-import { FiCreditCard, FiCopy, FiCheckCircle } from 'react-icons/fi';
+import { FiCreditCard, FiCopy, FiCheckCircle, FiPlus, FiArrowLeft } from 'react-icons/fi';
 import { MdQrCode2 } from 'react-icons/md';
+import { QRCodeSVG } from 'qrcode.react';
 import './pagamentoPedido.css';
 
 interface PagamentoPedidoProps {
-  resumoFinanceiro: any; // Recebe o resumo que montamos no Passo 4
+  resumoFinanceiro: any; 
   onVoltar: () => void;
   onFinalizarPagamento: (metodo: string, dadosPagamento: any) => void;
+  processando?: boolean;
+  // A interface agora reflete EXATAMENTE o que o usePedido devolve
+  dadosPix?: { 
+    metodo: 'pix' | 'cartao';
+    qrCodeTexto?: string;
+    qrCodeUrl?: string;
+    checkoutUrl?: string; 
+  } | null;
 }
 
-// Mock de cartões que viriam do banco de dados do usuário
+// Mock inicial de cartões (depois virá do seu banco)
 const cartoesSalvosMock = [
   { id: 1, final: '4321', bandeira: 'Mastercard', tipo: 'Crédito' },
   { id: 2, final: '8765', bandeira: 'Visa', tipo: 'Débito' }
 ];
 
-export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamento }: PagamentoPedidoProps) {
-  // Estados da tela
+export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamento, processando, dadosPix }: PagamentoPedidoProps) {
   const [metodoPagamento, setMetodoPagamento] = useState<'cartao' | 'pix'>('cartao');
   const [idCartaoSelecionado, setIdCartaoSelecionado] = useState<number | null>(null);
   const [copiado, setCopiado] = useState(false);
+  
+  const [isRegistrandoCartao, setIsRegistrandoCartao] = useState(false);
+  const [dadosNovoCartao, setDadosNovoCartao] = useState({
+    nome: '', numero: '', validade: '', cvv: '', cpf: ''
+  });
 
-  // Simulando o código Pix que viria do backend
-  const codigoPixMock = "00020126580014br.gov.bcb.pix0136123e4567-e89b-12d3-a456-4266554400005204000053039865802BR5913Sempre Limpa6009Sao Paulo62070503***63041A2B";
-
-  const copiarPix = () => {
-    navigator.clipboard.writeText(codigoPixMock);
+  const copiarPix = (textoParaCopiar: string) => {
+    if (!textoParaCopiar) return;
+    navigator.clipboard.writeText(textoParaCopiar);
     setCopiado(true);
     setTimeout(() => setCopiado(false), 2000);
   };
 
-  // Se por acaso a tela carregar sem os dados (F5), evita quebrar
+  const handleRegistrarCartao = () => {
+    console.log("Gerando Token na Operadora e Salvando no Banco...", dadosNovoCartao);
+    setIsRegistrandoCartao(false);
+  };
+
   if (!resumoFinanceiro) return <p>Carregando dados do pagamento...</p>;
 
   return (
@@ -41,107 +56,215 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
             COLUNA ESQUERDA (Opções de Pagamento)
             ========================================== */}
         <div className="coluna-esquerda card-branco">
-          <h2 className="titulo-pagamento">Como você prefere pagar?</h2>
-
-          {/* Toggle de Seleção PIX / CARTÃO */}
-          <div className="seletor-metodo-pagamento">
-            <button 
-              className={`btn-metodo ${metodoPagamento === 'cartao' ? 'ativo' : ''}`}
-              onClick={() => setMetodoPagamento('cartao')}
-            >
-              <FiCreditCard size={24} />
-              <span>Cartão</span>
-            </button>
-            <button 
-              className={`btn-metodo ${metodoPagamento === 'pix' ? 'ativo' : ''}`}
-              onClick={() => setMetodoPagamento('pix')}
-            >
-              <MdQrCode2 size={24} />
-              <span>Pix</span>
-            </button>
-          </div>
+          
+          {!isRegistrandoCartao && (
+            <>
+              <h2 className="titulo-pagamento">Como você prefere pagar?</h2>
+              <div className="seletor-metodo-pagamento">
+                <button 
+                  className={`btn-metodo ${metodoPagamento === 'cartao' ? 'ativo' : ''}`}
+                  onClick={() => setMetodoPagamento('cartao')}
+                >
+                  <FiCreditCard size={24} />
+                  <span>Cartão</span>
+                </button>
+                <button 
+                  className={`btn-metodo ${metodoPagamento === 'pix' ? 'ativo' : ''}`}
+                  onClick={() => setMetodoPagamento('pix')}
+                >
+                  <MdQrCode2 size={24} />
+                  <span>Pix</span>
+                </button>
+              </div>
+            </>
+          )}
 
           <div className="area-conteudo-metodo">
             
             {/* --- VISÃO CARTÃO --- */}
             {metodoPagamento === 'cartao' && (
               <div className="visao-cartao">
-                <h3>Seus cartões salvos</h3>
                 
-                {cartoesSalvosMock.length > 0 ? (
-                  <div className="lista-cartoes">
-                    {cartoesSalvosMock.map(cartao => (
-                      <div 
-                        key={cartao.id} 
-                        className={`card-cartao-cinza ${idCartaoSelecionado === cartao.id ? 'selecionado' : ''}`}
-                        onClick={() => setIdCartaoSelecionado(cartao.id)}
-                      >
-                        <div className="icone-bandeira">
-                          <FiCreditCard size={24} color={idCartaoSelecionado === cartao.id ? '#007bff' : '#64748b'} />
+                {isRegistrandoCartao ? (
+                  <div className="form-novo-cartao-container">
+                    <button className="btn-voltar-form" onClick={() => setIsRegistrandoCartao(false)}>
+                      <FiArrowLeft size={20} /> Voltar aos cartões
+                    </button>
+                    
+                    <h3>Registrar novo cartão</h3>
+                    <p className="subtitulo-form">Seus dados estão protegidos e criptografados.</p>
+
+                    <div className="form-grid">
+                      <div className="input-group-cartao">
+                        <label>Nome no cartão</label>
+                        <input 
+                          type="text" 
+                          placeholder="Ex: GUILHERME V SOUZA" 
+                          value={dadosNovoCartao.nome}
+                          onChange={(e) => setDadosNovoCartao({...dadosNovoCartao, nome: e.target.value.toUpperCase()})}
+                        />
+                      </div>
+
+                      <div className="input-group-cartao">
+                        <label>Número do cartão</label>
+                        <input 
+                          type="text" 
+                          placeholder="0000 0000 0000 0000" 
+                          maxLength={19}
+                          value={dadosNovoCartao.numero}
+                          onChange={(e) => setDadosNovoCartao({...dadosNovoCartao, numero: e.target.value})}
+                        />
+                      </div>
+
+                      <div className="linha-inputs-duplos">
+                        <div className="input-group-cartao">
+                          <label>Vencimento</label>
+                          <input 
+                            type="text" 
+                            placeholder="MM/AA" 
+                            maxLength={5}
+                            value={dadosNovoCartao.validade}
+                            onChange={(e) => setDadosNovoCartao({...dadosNovoCartao, validade: e.target.value})}
+                          />
                         </div>
-                        <div className="info-cartao">
-                          <span className="nome-cartao">{cartao.bandeira} • {cartao.tipo}</span>
-                          <span className="final-cartao">Final {cartao.final}</span>
-                        </div>
-                        <div className="radio-customizado">
-                          {idCartaoSelecionado === cartao.id && <div className="radio-ativo"></div>}
+                        <div className="input-group-cartao">
+                          <label>CVV</label>
+                          <input 
+                            type="password" 
+                            placeholder="123" 
+                            maxLength={4}
+                            value={dadosNovoCartao.cvv}
+                            onChange={(e) => setDadosNovoCartao({...dadosNovoCartao, cvv: e.target.value})}
+                          />
                         </div>
                       </div>
-                    ))}
+
+                      <div className="input-group-cartao">
+                        <label>CPF do titular</label>
+                        <input 
+                          type="text" 
+                          placeholder="000.000.000-00" 
+                          maxLength={14}
+                          value={dadosNovoCartao.cpf}
+                          onChange={(e) => setDadosNovoCartao({...dadosNovoCartao, cpf: e.target.value})}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="acoes-pagamento-esquerdo" style={{ marginTop: '32px' }}>
+                      <button 
+                        className="btn-acao-principal"
+                        onClick={handleRegistrarCartao}
+                        disabled={!dadosNovoCartao.numero || !dadosNovoCartao.validade || !dadosNovoCartao.cvv}
+                      >
+                        Registrar cartão
+                      </button>
+                    </div>
                   </div>
                 ) : (
-                  <p className="texto-vazio">Você ainda não possui cartões cadastrados.</p>
-                )}
+                  <>
+                    <h3>Seus cartões salvos</h3>
+                    
+                    {cartoesSalvosMock.length > 0 ? (
+                      <div className="lista-cartoes">
+                        {cartoesSalvosMock.map(cartao => (
+                          <div 
+                            key={cartao.id} 
+                            className={`card-cartao-cinza ${idCartaoSelecionado === cartao.id ? 'selecionado' : ''}`}
+                            onClick={() => setIdCartaoSelecionado(cartao.id)}
+                          >
+                            <div className="icone-bandeira">
+                              <FiCreditCard size={24} color={idCartaoSelecionado === cartao.id ? '#007bff' : '#64748b'} />
+                            </div>
+                            <div className="info-cartao">
+                              <span className="nome-cartao">{cartao.bandeira} • {cartao.tipo}</span>
+                              <span className="final-cartao">Final {cartao.final}</span>
+                            </div>
+                            <div className="radio-customizado">
+                              {idCartaoSelecionado === cartao.id && <div className="radio-ativo"></div>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="texto-vazio">Você ainda não possui cartões cadastrados.</p>
+                    )}
 
-                <div className="acoes-pagamento-esquerdo">
-                  {idCartaoSelecionado ? (
-                    <button 
-                      className="btn-acao-principal"
-                      onClick={() => onFinalizarPagamento('cartao', { cartaoId: idCartaoSelecionado })}
-                    >
-                      Confirmar pagamento
-                    </button>
-                  ) : (
-                    <button className="btn-acao-secundaria">
-                      <FiPlus size={18} style={{ marginRight: '8px' }} />
-                      Registrar novo cartão
-                    </button>
-                  )}
-                </div>
+                    <div className="acoes-pagamento-esquerdo">
+                      {idCartaoSelecionado ? (
+                        <button 
+                          className="btn-acao-principal"
+                          onClick={() => onFinalizarPagamento('cartao', { cartaoId: idCartaoSelecionado })}
+                          disabled={processando} 
+                        >
+                          {processando ? 'Redirecionando...' : 'Confirmar pagamento'}
+                        </button>
+                      ) : (
+                        <button 
+                          className="btn-acao-secundaria"
+                          onClick={() => setIsRegistrandoCartao(true)}
+                        >
+                          <FiPlus size={18} style={{ marginRight: '8px' }} />
+                          Registrar novo cartão
+                        </button>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
             {/* --- VISÃO PIX --- */}
-            {metodoPagamento === 'pix' && (
+            {metodoPagamento === 'pix' && !isRegistrandoCartao && (
               <div className="visao-pix">
-                <div className="box-qrcode-cinza">
-                  <MdQrCode2 size={120} color="#334155" />
-                  <p>Escaneie o QR Code com o app do seu banco</p>
-                </div>
-
-                <div className="box-copia-cola">
-                  <p className="label-copia">Ou copie o código Pix (Copia e Cola)</p>
-                  <div className="input-group-copiar">
-                    <input type="text" readOnly value={codigoPixMock} />
-                    <button onClick={copiarPix} className={copiado ? 'copiado' : ''}>
-                      {copiado ? <FiCheckCircle size={20} /> : <FiCopy size={20} />}
+                
+                {/* SE AINDA NÃO GEROU O PIX */}
+                {!dadosPix ? (
+                  <div className="geracao-pix-pendente" style={{ textAlign: 'center', padding: '40px 0' }}>
+                    <MdQrCode2 size={80} color="#cbd5e1" style={{ marginBottom: '16px' }} />
+                    <p style={{ color: '#475569', marginBottom: '24px' }}>
+                      Finalize o pedido para gerarmos o seu código Pix seguro.
+                    </p>
+                    <button 
+                      className="btn-acao-principal pix-btn"
+                      disabled={processando}
+                      onClick={() => onFinalizarPagamento('pix', {})}
+                    >
+                      {processando ? 'Gerando Código...' : 'Gerar código Pix'}
                     </button>
                   </div>
-                </div>
+                ) : (
+                  
+                  /* SE O PIX FOI GERADO (Uso do qrCodeTexto alinhado com o Hook) */
+                  <div className="pix-gerado-sucesso">
+                    <div className="box-qrcode-cinza" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      {dadosPix.qrCodeTexto ? (
+                         <QRCodeSVG value={dadosPix.qrCodeTexto} size={150} level={"M"} />
+                      ) : (
+                         <MdQrCode2 size={120} color="#334155" />
+                      )}
+                      <p style={{ marginTop: '16px' }}>Escaneie o QR Code com o app do seu banco</p>
+                    </div>
 
-                <div className="status-pix-container">
-                  <div className="spinner-loader"></div>
-                  <span>Esperando conclusão do pagamento...</span>
-                </div>
+                    <div className="box-copia-cola">
+                      <p className="label-copia">Ou copie o código Pix (Copia e Cola)</p>
+                      <div className="input-group-copiar">
+                        <input type="text" readOnly value={dadosPix.qrCodeTexto || 'Código não gerado'} />
+                        <button 
+                          onClick={() => copiarPix(dadosPix.qrCodeTexto || '')} 
+                          className={copiado ? 'copiado' : ''}
+                        >
+                          {copiado ? <FiCheckCircle size={20} /> : <FiCopy size={20} />}
+                        </button>
+                      </div>
+                    </div>
 
-                <div className="acoes-pagamento-esquerdo">
-                  <button 
-                    className="btn-acao-principal pix-btn"
-                    onClick={() => onFinalizarPagamento('pix', { status: 'pago' })}
-                  >
-                    Já paguei!
-                  </button>
-                </div>
+                    <div className="status-pix-container">
+                      <div className="spinner-loader"></div>
+                      <span>Esperando conclusão do pagamento...</span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -149,7 +272,7 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
         </div>
 
         {/* ==========================================
-            COLUNA DIREITA (Resumo do Pedido - Reutilizado visualmente)
+            COLUNA DIREITA (Resumo do Pedido)
             ========================================== */}
         <div className="coluna-direita">
           <div className="card-branco card-resumo-financeiro">
@@ -178,7 +301,7 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
             </div>
 
             <button className="btn-voltar-checkout" onClick={onVoltar} style={{ marginTop: '20px' }}>
-              Voltar para o carrinho
+              Voltar para a configuração
             </button>
           </div>
         </div>
@@ -187,6 +310,3 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
     </div>
   );
 }
-
-// Hack rápido para o FiPlus funcionar caso você não tenha importado lá em cima
-import { FiPlus } from 'react-icons/fi';
