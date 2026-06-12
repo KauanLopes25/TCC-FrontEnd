@@ -32,10 +32,7 @@ export function usePedido() {
           });
         } 
         else if (payloadDoBanco.tipo_pagamento === 'CARTAO') {
-           // Se for cartão, e a AbacatePay devolveu o link, nós já podemos redirecionar o usuário
-           if (dadosPagamento.url_checkout) {
-             window.location.href = dadosPagamento.url_checkout;
-           }
+           console.log("Cartão processado! O componente vai mudar a tela agora.");
         }
       }
 

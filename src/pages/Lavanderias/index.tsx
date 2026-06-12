@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // 🚀 ADICIONADO: Importação do hook de navegação do React Router
 import { useSteeper } from '../../hooks/useSteeper';
 import { useLavanderia } from '../../hooks/useLavanderia'; 
 import { StepHeader } from '../../components/StepHeader';
@@ -6,7 +7,7 @@ import { FilterBar } from '../../components/FilterBar';
 import { LaundryCard } from '../../components/LaundryCard';
 import { LocationFilter } from '../../components/LocationFilter'; 
 import { PagamentoPedido } from '../../components/PagamentoPedido';
-import { usePedido } from '../../hooks/usePedido'; // Ajuste o caminho de pastas se necessário
+import { usePedido } from '../../hooks/usePedido'; 
 // Importando as Telas/Componentes
 import { DetalhesLavanderia } from '../DetalhesLavanderia'; 
 import { MontagemCesto } from '../MontagemCesto';
@@ -15,6 +16,7 @@ import { MontagemCesto } from '../MontagemCesto';
 import { CheckoutPedido } from '../../components/CheckoutPedido';
 
 export function Lavanderias() {
+  const navigate = useNavigate(); // 🚀 ADICIONADO: Inicialização do navegador de rotas
   const { passoAtual, circuloAtivo, porcentagem, proximoPasso, passoAnterior } = useSteeper();
   const { criarPedido, processandoPagamento, dadosPagamentoAbacate } = usePedido();
   const [idLavanderiaSelecionada, setIdLavanderiaSelecionada] = useState<number | null>(null);
@@ -117,6 +119,7 @@ export function Lavanderias() {
           }}
         />
       )}
+      
       {/* ==========================================
           PASSO 5: TELA DE PAGAMENTO FINAL
           ========================================== */}
@@ -154,9 +157,9 @@ export function Lavanderias() {
 
             if (resultado.sucesso) {
               if (metodo === 'cartao') {
-                // Se for cartão, o próprio hook já vai ter jogado o usuário para a URL da AbacatePay.
-                // Mas deixamos um log aqui por garantia.
-                console.log("Redirecionando para o checkout seguro...");
+                setTimeout(() => {
+                  navigate('/acompanhamento');
+                }, 2000);
               } else {
                 console.log("Pix gerado com sucesso pelo back-end!");
               }

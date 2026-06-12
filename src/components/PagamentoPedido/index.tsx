@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FiCreditCard, FiCopy, FiCheckCircle, FiPlus, FiArrowLeft } from 'react-icons/fi';
 import { MdQrCode2 } from 'react-icons/md';
 import { QRCodeSVG } from 'qrcode.react';
+import { useCartao } from '../../hooks/useCartao';
 import './pagamentoPedido.css';
 
 interface PagamentoPedidoProps {
@@ -20,19 +21,24 @@ interface PagamentoPedidoProps {
 
 // Mock inicial de cartões (depois virá do seu banco)
 const cartoesSalvosMock = [
-  { id: 1, final: '4321', bandeira: 'Mastercard', tipo: 'Crédito' },
-  { id: 2, final: '8765', bandeira: 'Visa', tipo: 'Débito' }
+  { id: 100, final: '4321', bandeira: 'Mastercard', tipo: 'Crédito' },
+  { id: 200, final: '8765', bandeira: 'Visa', tipo: 'Débito' }
 ];
 
 export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamento, processando, dadosPix }: PagamentoPedidoProps) {
   const [metodoPagamento, setMetodoPagamento] = useState<'cartao' | 'pix'>('cartao');
   const [idCartaoSelecionado, setIdCartaoSelecionado] = useState<number | null>(null);
   const [copiado, setCopiado] = useState(false);
-  
+  const { registrarCartao, salvandoCartao } = useCartao();
   const [isRegistrandoCartao, setIsRegistrandoCartao] = useState(false);
   const [dadosNovoCartao, setDadosNovoCartao] = useState({
     nome: '', numero: '', validade: '', cvv: '', cpf: ''
   });
+
+  const [listaCartoes, setListaCartoes] = useState([
+    { id: 1, final: '4321', bandeira: 'Mastercard', tipo: 'Crédito' },
+    { id: 2, final: '8765', bandeira: 'Visa', tipo: 'Débito' }
+  ]);
 
   const copiarPix = (textoParaCopiar: string) => {
     if (!textoParaCopiar) return;
@@ -41,9 +47,26 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
     setTimeout(() => setCopiado(false), 2000);
   };
 
-  const handleRegistrarCartao = () => {
-    console.log("Gerando Token na Operadora e Salvando no Banco...", dadosNovoCartao);
-    setIsRegistrandoCartao(false);
+ const handleRegistrarCartao = async () => {
+    // 1. Chama o Hook passando os dados do formulário
+    const cartaoRetornadoApi = await registrarCartao(dadosNovoCartao);
+
+    // 2. Se a API retornou sucesso, atualizamos a tela
+    if (cartaoRetornadoApi) {
+      console.log("Cartão salvo com sucesso!", cartaoRetornadoApi);
+
+      // Adiciona o novo cartão na lista que aparece na tela
+      setListaCartoes(prev => [...prev, cartaoRetornadoApi]);
+
+      // Fecha o formulário
+      setIsRegistrandoCartao(false);
+      
+      // Limpa os campos para a próxima vez
+      setDadosNovoCartao({ nome: '', numero: '', validade: '', cvv: '', cpf: '' });
+      
+      // Já deixa o cartão novo selecionado para facilitar a vida do usuário!
+      setIdCartaoSelecionado(cartaoRetornadoApi.id);
+    }
   };
 
   if (!resumoFinanceiro) return <p>Carregando dados do pagamento...</p>;
@@ -70,7 +93,13 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                 </button>
                 <button 
                   className={`btn-metodo ${metodoPagamento === 'pix' ? 'ativo' : ''}`}
-                  onClick={() => setMetodoPagamento('pix')}
+                  onClick={() => {
+                    setMetodoPagamento('pix');
+                    // A MÁGICA: Se ainda não gerou o Pix e não está no meio de uma requisição, dispara automático!
+                    if (!dadosPix && !processando) {
+                      onFinalizarPagamento('pix', {});
+                    }
+                  }}
                 >
                   <MdQrCode2 size={24} />
                   <span>Pix</span>
@@ -167,7 +196,7 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                     
                     {cartoesSalvosMock.length > 0 ? (
                       <div className="lista-cartoes">
-                        {cartoesSalvosMock.map(cartao => (
+                        {listaCartoes.map(cartao => (
                           <div 
                             key={cartao.id} 
                             className={`card-cartao-cinza ${idCartaoSelecionado === cartao.id ? 'selecionado' : ''}`}
@@ -218,24 +247,17 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
             {metodoPagamento === 'pix' && !isRegistrandoCartao && (
               <div className="visao-pix">
                 
-                {/* SE AINDA NÃO GEROU O PIX */}
+                {/* 1. SE AINDA NÃO GEROU O PIX (Mostra apenas o Loading) */}
                 {!dadosPix ? (
                   <div className="geracao-pix-pendente" style={{ textAlign: 'center', padding: '40px 0' }}>
-                    <MdQrCode2 size={80} color="#cbd5e1" style={{ marginBottom: '16px' }} />
+                     <div className="spinner-loader" style={{ margin: '0 auto 16px' }}></div>
                     <p style={{ color: '#475569', marginBottom: '24px' }}>
-                      Finalize o pedido para gerarmos o seu código Pix seguro.
+                      Gerando seu código Pix seguro...
                     </p>
-                    <button 
-                      className="btn-acao-principal pix-btn"
-                      disabled={processando}
-                      onClick={() => onFinalizarPagamento('pix', {})}
-                    >
-                      {processando ? 'Gerando Código...' : 'Gerar código Pix'}
-                    </button>
                   </div>
                 ) : (
                   
-                  /* SE O PIX FOI GERADO (Uso do qrCodeTexto alinhado com o Hook) */
+                  /* 2. SE O PIX FOI GERADO (Uso do qrCodeTexto alinhado com o Hook) */
                   <div className="pix-gerado-sucesso">
                     <div className="box-qrcode-cinza" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                       {dadosPix.qrCodeTexto ? (
@@ -259,9 +281,22 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                       </div>
                     </div>
 
-                    <div className="status-pix-container">
-                      <div className="spinner-loader"></div>
-                      <span>Esperando conclusão do pagamento...</span>
+                    {/* 3. NOVA ÁREA DE STATUS COM BOTÃO DE SIMULAÇÃO PARA A BANCA */}
+                    <div className="status-pix-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginTop: '20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div className="spinner-loader"></div>
+                        <span>Esperando conclusão do pagamento...</span>
+                      </div>
+                      
+                      <button 
+                        className="btn-acao-principal"
+                        style={{ backgroundColor: '#22c55e', border: 'none', padding: '10px 20px', borderRadius: '8px', color: '#fff', cursor: 'pointer', width: '100%' }}
+                        onClick={() => {
+                          window.location.href = '/historico'; 
+                        }}
+                      >
+                        Concluido
+                      </button>
                     </div>
                   </div>
                 )}

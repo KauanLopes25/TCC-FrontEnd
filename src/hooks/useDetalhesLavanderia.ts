@@ -17,10 +17,9 @@ export const useLavanderiaDetalhes = (idLavanderia: number | null) => {
       try {
         // O Hook pede os dados para o Service "cego" de como a rede funciona
         const resultado = await buscarDetalhesLavanderia(idLavanderia);
-
-        // Verifica se a API devolveu sucesso. Ajuste o caminho do array conforme sua Controller
+       
         if (resultado.status_code === 200 || resultado.status) {
-          setDados(resultado.items.lavanderia[0]); 
+          setDados(resultado.items.lavanderia); 
         } else {
           setErro("Não foi possível carregar os detalhes.");
         }
