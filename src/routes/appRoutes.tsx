@@ -25,7 +25,7 @@ export function AppRoutes() {
           <Route path="/home" element={<Home/>}/>
           <Route path="/lavanderias" element={<Lavanderias />} />
           <Route path="/pedidos" element={<MeusPedidos/>}/>
-          <Route path="/acompanhamento" element={<AcompanhamentoPedido/>}/>
+          <Route path="/acompanhamento/:idPedido" element={<AcompanhamentoPedido />} />
         </Route>
         
       </Routes>

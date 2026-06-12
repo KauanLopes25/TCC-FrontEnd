@@ -4,40 +4,52 @@ import {
   FiPackage, FiPlus, FiChevronRight, 
   FiShoppingBag, FiClock 
 } from 'react-icons/fi';
+import { useHome } from '../../hooks/useHome'; // Importando o Hook Real!
 
 export function Home() {
   const navigate = useNavigate();
 
-  // ---------------------------------------------------------
-  // MOCK DE DADOS (Simulando o retorno do seu useHome)
-  // ---------------------------------------------------------
-  const usuario = { nome: "Guilherme" };
-  
-  const pedidoAtual = {
-    pedido_id: 4092,
-    status_pedido: 'EM_ANDAMENTO',
-    progresso: 50,
-    mensagem: "Sua roupa está sendo lavada.",
-    quantidade_cestos: 2,
-    tempo_estimado_minutos: 45
-  };
+  // Chamada do Hook passando o ID do usuário logado (1 para o MVP)
+  const { dadosHome, carregando, erro } = useHome(1);
 
-  const ultimosPedidos = [
-    { pedido_id: 4085, data_pedido: '10/06/2026', quantidade_cestos: 1, status_pedido: 'FINALIZADO' },
-    { pedido_id: 4070, data_pedido: '25/05/2026', quantidade_cestos: 3, status_pedido: 'FINALIZADO' },
-    { pedido_id: 4051, data_pedido: '12/04/2026', quantidade_cestos: 2, status_pedido: 'CANCELADO' }
-  ];
+  // Tratamentos de Loading e Erro
+  if (carregando) return <div style={{ textAlign: 'center', marginTop: '50px', color: '#64748b' }}>Carregando seu painel...</div>;
+  if (erro) return <div style={{ textAlign: 'center', marginTop: '50px', color: '#ef4444' }}>Erro: {erro}</div>;
+  if (!dadosHome) return null;
 
-  // Métricas do usuário para os 2 Cards Brancos
-  const metricas = {
-    totalPedidos: 14,
-    totalCestos: 32
-  };
+  // Desestruturando os dados que vieram do banco através do Hook
+  const { usuario, metricas, pedidoAtual, ultimosPedidos } = dadosHome;
 
-  // Funções de formatação e ação
+  // Funções Utilitárias e Navegações
   const formatarNumero = (id: number) => String(id).padStart(4, '0');
   const lidarComNovoPedido = () => navigate('/lavanderias');
-  const lidarComDetalhes = () => navigate('/acompanhamento');
+  
+  // 🚀 Direciona para o ID específico do pedido atual
+  const lidarComDetalhes = () => {
+    if (pedidoAtual?.pedido_id) {
+      navigate(`/acompanhamento/${pedidoAtual.pedido_id}`);
+    }
+  };
+
+  const obterCoresBadge = (status: string) => {
+    switch (status) {
+      case 'ENTREGUE': 
+        return { bg: '#dcfce7', border: '#bbf7d0', text: '#166534' }; // Verde
+      case 'CANCELADO': 
+        return { bg: '#fee2e2', border: '#fecaca', text: '#991b1b' }; // Vermelho
+      case 'SOLICITADO':
+      case 'ATRIBUIDO':
+      case 'COLETANDO': 
+        return { bg: '#fef3c7', border: '#fde68a', text: '#92400e' }; // Amarelo/Laranja
+      default: 
+        return { bg: '#dbeafe', border: '#bfdbfe', text: '#1e40af' }; // Azul (Lavando, Secando, Trânsito, Retornando)
+    }
+  };
+
+  const formatarData = (dataIso: string) => {
+    if (!dataIso) return '';
+    return new Date(dataIso).toLocaleDateString('pt-BR');
+  };
 
   return (
     <div style={{ padding: '40px 20px', maxWidth: '1000px', margin: '0 auto', fontFamily: 'sans-serif' }}>
@@ -77,7 +89,7 @@ export function Home() {
 
       {/* 3. PEDIDO EM ANDAMENTO */}
       {pedidoAtual && (
-        <div style={{ marginBottom: '24px' }}> {/* Margem reduzida para colar mais no botão */}
+        <div style={{ marginBottom: '24px' }}> 
           <h2 style={styles.tituloSecao}>Pedido em Andamento</h2>
           
           <div style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
@@ -86,7 +98,7 @@ export function Home() {
                 <span style={{ backgroundColor: '#f1f5f9', color: '#475569', padding: '4px 12px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 'bold' }}>
                   Pedido #{formatarNumero(pedidoAtual.pedido_id)}
                 </span>
-                <h3 style={{ margin: '8px 0 0 0', color: '#1e293b', fontSize: '1.4rem' }}>Em processamento</h3>
+                <h3 style={{ margin: '8px 0 0 0', color: '#1e293b', fontSize: '1.4rem' }}>{pedidoAtual.status_pedido}</h3>
               </div>
               <button onClick={lidarComDetalhes} style={{ backgroundColor: 'transparent', border: 'none', color: '#0056b3', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}>
                 Acompanhar ao vivo &rarr;
@@ -95,7 +107,7 @@ export function Home() {
 
             {/* Barra de Progresso */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Progresso da lavagem</span>
+              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Progresso logístico</span>
               <span style={{ color: '#0f172a', fontWeight: 'bold' }}>{pedidoAtual.progresso}%</span>
             </div>
             
@@ -144,24 +156,29 @@ export function Home() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
           {ultimosPedidos.length > 0 ? (
-            ultimosPedidos.map(pedido => (
+            ultimosPedidos.map((pedido: any) => (
               <div key={pedido.pedido_id} style={styles.cardPedidoAntigo}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                   <div style={{ width: '44px', height: '44px', backgroundColor: '#f1f5f9', borderRadius: '10px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#0056b3' }}>
                     <FiPackage size={20} />
                   </div>
-                  <FiChevronRight size={20} color="#cbd5e1" style={{ cursor: 'pointer' }} onClick={() => navigate('/pedidos')} />
+                  <FiChevronRight size={20} color="#cbd5e1" style={{ cursor: 'pointer' }} onClick={() => navigate(`/acompanhamento/${pedido.pedido_id}`)} />
                 </div>
                 
                 <div>
                   <h4 style={{ margin: '0 0 6px 0', color: '#1e293b', fontSize: '1.1rem' }}>Pedido #{formatarNumero(pedido.pedido_id)}</h4>
-                  <p style={{ margin: '0 0 16px 0', color: '#64748b', fontSize: '0.9rem' }}>{pedido.data_pedido} • {pedido.quantidade_cestos} cestos</p>
+                  <p style={{ margin: '0 0 16px 0', color: '#64748b', fontSize: '0.9rem' }}>{formatarData(pedido.data)} • {pedido.quantidade_cestos} cestos</p>
                   
+                  {/* O SEGREDO ESTÁ AQUI: Chamamos a função de cores dinâmicas */}
                   <span style={{ 
-                    padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold', border: '1px solid',
-                    backgroundColor: pedido.status_pedido === 'FINALIZADO' ? '#dcfce7' : '#fee2e2',
-                    borderColor: pedido.status_pedido === 'FINALIZADO' ? '#bbf7d0' : '#fecaca',
-                    color: pedido.status_pedido === 'FINALIZADO' ? '#166534' : '#991b1b',
+                    padding: '4px 10px', 
+                    borderRadius: '6px', 
+                    fontSize: '0.75rem', 
+                    fontWeight: 'bold', 
+                    border: '1px solid',
+                    backgroundColor: obterCoresBadge(pedido.status_pedido).bg,
+                    borderColor: obterCoresBadge(pedido.status_pedido).border,
+                    color: obterCoresBadge(pedido.status_pedido).text,
                     display: 'inline-block'
                   }}>
                     {pedido.status_pedido}

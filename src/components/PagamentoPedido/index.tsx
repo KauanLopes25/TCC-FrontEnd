@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FiCreditCard, FiCopy, FiCheckCircle, FiPlus, FiArrowLeft } from 'react-icons/fi';
 import { MdQrCode2 } from 'react-icons/md';
 import { QRCodeSVG } from 'qrcode.react';
+import { useNavigate } from 'react-router-dom';
 import { useCartao } from '../../hooks/useCartao';
 import './pagamentoPedido.css';
 
@@ -10,26 +11,26 @@ interface PagamentoPedidoProps {
   onVoltar: () => void;
   onFinalizarPagamento: (metodo: string, dadosPagamento: any) => void;
   processando?: boolean;
-  // A interface agora reflete EXATAMENTE o que o usePedido devolve
   dadosPix?: { 
     metodo: 'pix' | 'cartao';
     qrCodeTexto?: string;
     qrCodeUrl?: string;
     checkoutUrl?: string; 
+    idPedidoBanco?: string | number;
   } | null;
 }
 
-// Mock inicial de cartões (depois virá do seu banco)
 const cartoesSalvosMock = [
   { id: 100, final: '4321', bandeira: 'Mastercard', tipo: 'Crédito' },
   { id: 200, final: '8765', bandeira: 'Visa', tipo: 'Débito' }
 ];
 
 export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamento, processando, dadosPix }: PagamentoPedidoProps) {
+  const navigate = useNavigate();
   const [metodoPagamento, setMetodoPagamento] = useState<'cartao' | 'pix'>('cartao');
   const [idCartaoSelecionado, setIdCartaoSelecionado] = useState<number | null>(null);
   const [copiado, setCopiado] = useState(false);
-  const { registrarCartao, salvandoCartao } = useCartao();
+  const { registrarCartao } = useCartao();
   const [isRegistrandoCartao, setIsRegistrandoCartao] = useState(false);
   const [dadosNovoCartao, setDadosNovoCartao] = useState({
     nome: '', numero: '', validade: '', cvv: '', cpf: ''
@@ -48,24 +49,21 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
   };
 
  const handleRegistrarCartao = async () => {
-    // 1. Chama o Hook passando os dados do formulário
     const cartaoRetornadoApi = await registrarCartao(dadosNovoCartao);
 
-    // 2. Se a API retornou sucesso, atualizamos a tela
     if (cartaoRetornadoApi) {
-      console.log("Cartão salvo com sucesso!", cartaoRetornadoApi);
-
-      // Adiciona o novo cartão na lista que aparece na tela
       setListaCartoes(prev => [...prev, cartaoRetornadoApi]);
-
-      // Fecha o formulário
       setIsRegistrandoCartao(false);
-      
-      // Limpa os campos para a próxima vez
       setDadosNovoCartao({ nome: '', numero: '', validade: '', cvv: '', cpf: '' });
-      
-      // Já deixa o cartão novo selecionado para facilitar a vida do usuário!
       setIdCartaoSelecionado(cartaoRetornadoApi.id);
+    }
+  };
+
+  const simularPagamentoSucesso = () => {
+    if (dadosPix?.idPedidoBanco) {
+       navigate(`/acompanhamento/${dadosPix.idPedidoBanco}`);
+    } else {
+       navigate('/pedidos');
     }
   };
 
@@ -75,9 +73,6 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
     <div className="pagamento-container">
       <div className="pagamento-layout">
         
-        {/* ==========================================
-            COLUNA ESQUERDA (Opções de Pagamento)
-            ========================================== */}
         <div className="coluna-esquerda card-branco">
           
           {!isRegistrandoCartao && (
@@ -95,7 +90,6 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                   className={`btn-metodo ${metodoPagamento === 'pix' ? 'ativo' : ''}`}
                   onClick={() => {
                     setMetodoPagamento('pix');
-                    // A MÁGICA: Se ainda não gerou o Pix e não está no meio de uma requisição, dispara automático!
                     if (!dadosPix && !processando) {
                       onFinalizarPagamento('pix', {});
                     }
@@ -110,7 +104,6 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
 
           <div className="area-conteudo-metodo">
             
-            {/* --- VISÃO CARTÃO --- */}
             {metodoPagamento === 'cartao' && (
               <div className="visao-cartao">
                 
@@ -223,10 +216,16 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                       {idCartaoSelecionado ? (
                         <button 
                           className="btn-acao-principal"
-                          onClick={() => onFinalizarPagamento('cartao', { cartaoId: idCartaoSelecionado })}
+                          onClick={() => {
+                            if (dadosPix?.idPedidoBanco) {
+                               navigate(`/acompanhamento/${dadosPix.idPedidoBanco}`);
+                            } else {
+                               onFinalizarPagamento('cartao', { cartaoId: idCartaoSelecionado });
+                            }
+                          }}
                           disabled={processando} 
                         >
-                          {processando ? 'Redirecionando...' : 'Confirmar pagamento'}
+                          {processando ? 'Processando...' : 'Confirmar pagamento'}
                         </button>
                       ) : (
                         <button 
@@ -243,11 +242,9 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
               </div>
             )}
 
-            {/* --- VISÃO PIX --- */}
             {metodoPagamento === 'pix' && !isRegistrandoCartao && (
               <div className="visao-pix">
                 
-                {/* 1. SE AINDA NÃO GEROU O PIX (Mostra apenas o Loading) */}
                 {!dadosPix ? (
                   <div className="geracao-pix-pendente" style={{ textAlign: 'center', padding: '40px 0' }}>
                      <div className="spinner-loader" style={{ margin: '0 auto 16px' }}></div>
@@ -257,7 +254,6 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                   </div>
                 ) : (
                   
-                  /* 2. SE O PIX FOI GERADO (Uso do qrCodeTexto alinhado com o Hook) */
                   <div className="pix-gerado-sucesso">
                     <div className="box-qrcode-cinza" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                       {dadosPix.qrCodeTexto ? (
@@ -281,7 +277,6 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                       </div>
                     </div>
 
-                    {/* 3. NOVA ÁREA DE STATUS COM BOTÃO DE SIMULAÇÃO PARA A BANCA */}
                     <div className="status-pix-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginTop: '20px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div className="spinner-loader"></div>
@@ -291,11 +286,9 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                       <button 
                         className="btn-acao-principal"
                         style={{ backgroundColor: '#22c55e', border: 'none', padding: '10px 20px', borderRadius: '8px', color: '#fff', cursor: 'pointer', width: '100%' }}
-                        onClick={() => {
-                          window.location.href = '/historico'; 
-                        }}
+                        onClick={simularPagamentoSucesso}
                       >
-                        Concluido
+                        Concluído
                       </button>
                     </div>
                   </div>
@@ -306,9 +299,6 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
           </div>
         </div>
 
-        {/* ==========================================
-            COLUNA DIREITA (Resumo do Pedido)
-            ========================================== */}
         <div className="coluna-direita">
           <div className="card-branco card-resumo-financeiro">
             <h3>Resumo final</h3>

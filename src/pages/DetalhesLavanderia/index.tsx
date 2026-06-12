@@ -2,12 +2,17 @@ import React from 'react';
 import { useLavanderiaDetalhes } from '../../hooks/useDetalhesLavanderia';
 import { BackButton } from '../../components/BackButton';
 import { FilterBar } from '../../components/FilterBar';
-// Adicionamos FiInfo, FiDroplet e FiWind
 import { FiMapPin, FiClock, FiInfo, FiDroplet, FiWind } from 'react-icons/fi';
 
 import './DetalhesLavanderia.css'; 
 
-export function DetalhesLavanderia({ idLavanderia, onVoltar, onAvancar }) {
+interface DetalhesLavanderiaProps {
+  idLavanderia: number | null;
+  onVoltar: () => void;
+  onAvancar: () => void;
+}
+
+export function DetalhesLavanderia({ idLavanderia, onVoltar, onAvancar }: DetalhesLavanderiaProps) {
   const { dados, carregando, erro } = useLavanderiaDetalhes(idLavanderia);
 
   if (carregando) return <p style={{ textAlign: 'center', padding: '40px' }}>Carregando detalhes da lavanderia...</p>;
@@ -19,7 +24,6 @@ export function DetalhesLavanderia({ idLavanderia, onVoltar, onAvancar }) {
       
       <div className="conteudo-principal-lavanderia">
         
-        {/* 1. HEADER */}
         <div className="header-actions-row">
           <BackButton onClick={onVoltar} /> 
           
@@ -33,24 +37,24 @@ export function DetalhesLavanderia({ idLavanderia, onVoltar, onAvancar }) {
           </div>
         </div>
 
-        {/* 2. HERO SECTION E LOGO */}
         <div className="banner-lavanderia" style={{ backgroundImage: `url('/capa-padrao.jpg')` }}></div>
         
         <div className="perfil-row">
-          <img src={dados.logo || '/logo-padrao.png'} alt="Logo" className="logo-lateral" />
+          <img 
+            src={dados.foto_url || dados.logo || 'https://via.placeholder.com/150?text=Sem+Foto'} 
+            alt={dados.nome} 
+            style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '12px' }} 
+          />
           <div className="titulo-info">
             <h2>{dados.nome}</h2>
             <span className="avaliacao">⭐ {dados.media_avaliacao || '0'}</span>
           </div>
         </div>
 
-        {/* 3. GRID DE INFORMAÇÕES */}
         <div className="cards-layout">
           
-          {/* LINHA SUPERIOR */}
           <div className="cards-top-row">
             
-            {/* Card Duplo: Localização e Tempo */}
             <div className="card-principal flex-row">
               
               <div className="metade-card">
@@ -66,9 +70,8 @@ export function DetalhesLavanderia({ idLavanderia, onVoltar, onAvancar }) {
                 
                 <div className="dados-view compactado">
                   <p className="destaque-logradouro">{dados.logradouro}{dados.numero && `, ${dados.numero}`}</p>
-                  <p>{dados.bairro} - {dados.cidade}/{dados.uf} - {dados.complemento && <p>{dados.complemento}</p>}</p>
+                  <p>{dados.bairro} - {dados.cidade}/{dados.uf} {dados.complemento && ` - ${dados.complemento}`}</p>
                   <p>CEP: {dados.cep}</p>
-                  
                 </div>
               </div>
 
@@ -91,7 +94,6 @@ export function DetalhesLavanderia({ idLavanderia, onVoltar, onAvancar }) {
               </div>
             </div>
 
-            {/* Card: Sobre a Lavanderia (Agora com ícone) */}
             <div className="card-principal">
               <div className="header-card-icone margin-bottom-fix">
                 <div className="icone-quadrado">
@@ -109,26 +111,23 @@ export function DetalhesLavanderia({ idLavanderia, onVoltar, onAvancar }) {
 
           </div>
 
-          {/* LINHA INFERIOR (Jogada para a direita via CSS) */}
           <div className="cards-bottom-row">
             
-            {/* Card Pequeno: Lavagem */}
             <div className="card-pequeno">
               <div className="header-card-icone-pequeno">
                 <FiDroplet size={18} color="#3ba1f2" />
                 <h4>Lavagem</h4>
               </div>
-              <p className="preco-texto">R$ {dados.preco_padrao_lavagem}</p>
+              <p className="preco-texto">R$ {Number(dados.preco_padrao_lavagem || 0).toFixed(2)}</p>
               <p className="tempo-texto">Tempo: {dados.tempo_padrao_lavagem} min</p>
             </div>
 
-            {/* Card Pequeno: Secagem */}
             <div className="card-pequeno">
               <div className="header-card-icone-pequeno">
                 <FiWind size={18} color="#3ba1f2" />
                 <h4>Secagem</h4>
               </div>
-              <p className="preco-texto">R$ {dados.preco_padrao_secagem}</p>
+              <p className="preco-texto">R$ {Number(dados.preco_padrao_secagem || 0).toFixed(2)}</p>
               <p className="tempo-texto">Tempo: {dados.tempo_secagem} min</p>
             </div>
 
@@ -136,7 +135,6 @@ export function DetalhesLavanderia({ idLavanderia, onVoltar, onAvancar }) {
 
         </div>
 
-        {/* 4. RODAPÉ / AÇÃO */}
         <div className="footer-acoes">
           <button className="btn-solicitar-grande" onClick={onAvancar}>
             Solicitar nova entrega
