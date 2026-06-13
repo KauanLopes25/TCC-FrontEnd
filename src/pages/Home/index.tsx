@@ -8,13 +8,39 @@ import { useHome } from '../../hooks/useHome'; // Importando o Hook Real!
 
 export function Home() {
   const navigate = useNavigate();
-
+  const idUsuarioSalvo = 2;
   // Chamada do Hook passando o ID do usuário logado (1 para o MVP)
   const { dadosHome, carregando, erro } = useHome(1);
 
-  // Tratamentos de Loading e Erro
+  // Tratamentos de Loading
   if (carregando) return <div style={{ textAlign: 'center', marginTop: '50px', color: '#64748b' }}>Carregando seu painel...</div>;
-  if (erro) return <div style={{ textAlign: 'center', marginTop: '50px', color: '#ef4444' }}>Erro: {erro}</div>;
+  
+  // ==========================================
+  // 🚀 TELA DE BOAS-VINDAS (EMPTY STATE)
+  // Se o usuário não tiver pedidos ou a API der 404, mostramos essa tela linda
+  // ==========================================
+  if (erro) {
+    return (
+      <div style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
+        <div style={{ marginTop: '60px', padding: '50px 20px', backgroundColor: '#fff', borderRadius: '16px', border: '2px dashed #cbd5e1', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+          <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🧺</div>
+          <h2 style={{ color: '#1e293b', fontSize: '1.8rem', margin: '0 0 12px 0' }}>Bem-vindo ao SempreLimpa!</h2>
+          <p style={{ color: '#64748b', fontSize: '1.1rem', margin: '0 0 32px 0' }}>
+            Parece que você ainda não tem nenhum pedido no seu histórico. Que tal experimentar os nossos serviços agora mesmo?
+          </p>
+          <button 
+            onClick={() => navigate('/lavanderias')}
+            style={{ padding: '16px 32px', backgroundColor: '#0056b3', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,86,179,0.2)', transition: 'transform 0.2s' }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            Fazer meu primeiro pedido
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!dadosHome) return null;
 
   // Desestruturando os dados que vieram do banco através do Hook
@@ -24,7 +50,7 @@ export function Home() {
   const formatarNumero = (id: number) => String(id).padStart(4, '0');
   const lidarComNovoPedido = () => navigate('/lavanderias');
   
-  // 🚀 Direciona para o ID específico do pedido atual
+  // Direciona para o ID específico do pedido atual
   const lidarComDetalhes = () => {
     if (pedidoAtual?.pedido_id) {
       navigate(`/acompanhamento/${pedidoAtual.pedido_id}`);
@@ -57,7 +83,7 @@ export function Home() {
       {/* 1. CABEÇALHO LIMPO */}
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ color: '#1e293b', margin: '0 0 8px 0', fontSize: '1.8rem' }}>
-          Olá, {usuario.nome}! 👋
+          Olá, Guilherme! 👋
         </h1>
         <p style={{ color: '#64748b', margin: 0, fontSize: '1.1rem' }}>
           Bem-vindo ao seu painel do SempreLimpa.
@@ -127,9 +153,7 @@ export function Home() {
         </div>
       )}
 
-      {/* ==========================================
-          NOVO BOTÃO GIGANTE DE AÇÃO (CTA)
-          ========================================== */}
+      {/* 4. NOVO BOTÃO GIGANTE DE AÇÃO (CTA) */}
       <div style={{ marginBottom: '40px' }}>
         <button 
           onClick={lidarComNovoPedido}
@@ -169,7 +193,6 @@ export function Home() {
                   <h4 style={{ margin: '0 0 6px 0', color: '#1e293b', fontSize: '1.1rem' }}>Pedido #{formatarNumero(pedido.pedido_id)}</h4>
                   <p style={{ margin: '0 0 16px 0', color: '#64748b', fontSize: '0.9rem' }}>{formatarData(pedido.data)} • {pedido.quantidade_cestos} cestos</p>
                   
-                  {/* O SEGREDO ESTÁ AQUI: Chamamos a função de cores dinâmicas */}
                   <span style={{ 
                     padding: '4px 10px', 
                     borderRadius: '6px', 

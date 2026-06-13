@@ -37,7 +37,15 @@ export function DetalhesLavanderia({ idLavanderia, onVoltar, onAvancar }: Detalh
           </div>
         </div>
 
-        <div className="banner-lavanderia" style={{ backgroundImage: `url('/capa-padrao.jpg')` }}></div>
+        {/* 1. BANNER FIXO: Imagem de alta qualidade de uma lavanderia */}
+        <div 
+          className="banner-lavanderia" 
+          style={{ 
+            backgroundImage: `url('https://images.unsplash.com/photo-1545173168-9f1947eebb7f?auto=format&fit=crop&w=1200&q=80')`,
+            backgroundPosition: 'center',
+            backgroundSize: 'cover'
+          }}
+        ></div>
         
         <div className="perfil-row">
           <img 
@@ -111,24 +119,42 @@ export function DetalhesLavanderia({ idLavanderia, onVoltar, onAvancar }: Detalh
 
           </div>
 
-          <div className="cards-bottom-row">
+          {/* 2. NOVO LAYOUT DA PARTE INFERIOR: Mapa Interativo Falso + Preços */}
+          <div style={{ display: 'flex', gap: '20px', marginTop: '20px', alignItems: 'stretch' }}>
             
-            <div className="card-pequeno">
-              <div className="header-card-icone-pequeno">
-                <FiDroplet size={18} color="#3ba1f2" />
-                <h4>Lavagem</h4>
-              </div>
-              <p className="preco-texto">R$ {Number(dados.preco_padrao_lavagem || 0).toFixed(2)}</p>
-              <p className="tempo-texto">Tempo: {dados.tempo_padrao_lavagem} min</p>
+            {/* O MAPA: Iframe do Google Maps centralizado na região */}
+            <div style={{ flex: 1.5, borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', minHeight: '200px', backgroundColor: '#f1f5f9' }}>
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14631.545809714896!2d-46.9069811!3d-23.536561!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94cf06b3a0172e9d%3A0xcb99211c4794101e!2sJandira%2C%20SP!5e0!3m2!1spt-BR!2sbr!4v1716500000000!5m2!1spt-BR!2sbr" 
+                width="100%" 
+                height="100%" 
+                style={{ border: 0 }} 
+                allowFullScreen={false} 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Mapa de Atendimento"
+              ></iframe>
             </div>
 
-            <div className="card-pequeno">
-              <div className="header-card-icone-pequeno">
-                <FiWind size={18} color="#3ba1f2" />
-                <h4>Secagem</h4>
+            {/* OS CARDS DE SERVIÇO: Agrupados na direita */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="card-pequeno" style={{ margin: 0 }}>
+                <div className="header-card-icone-pequeno">
+                  <FiDroplet size={18} color="#3ba1f2" />
+                  <h4>Lavagem</h4>
+                </div>
+                <p className="preco-texto">R$ {Number(dados.preco_padrao_lavagem || 0).toFixed(2)}</p>
+                <p className="tempo-texto">Tempo: {dados.tempo_padrao_lavagem} min</p>
               </div>
-              <p className="preco-texto">R$ {Number(dados.preco_padrao_secagem || 0).toFixed(2)}</p>
-              <p className="tempo-texto">Tempo: {dados.tempo_secagem} min</p>
+
+              <div className="card-pequeno" style={{ margin: 0 }}>
+                <div className="header-card-icone-pequeno">
+                  <FiWind size={18} color="#3ba1f2" />
+                  <h4>Secagem</h4>
+                </div>
+                <p className="preco-texto">R$ {Number(dados.preco_padrao_secagem || 0).toFixed(2)}</p>
+                <p className="tempo-texto">Tempo: {dados.tempo_secagem} min</p>
+              </div>
             </div>
 
           </div>

@@ -3,7 +3,7 @@ import { FiCreditCard, FiCopy, FiCheckCircle, FiPlus, FiArrowLeft } from 'react-
 import { MdQrCode2 } from 'react-icons/md';
 import { QRCodeSVG } from 'qrcode.react';
 import { useNavigate } from 'react-router-dom';
-import { useCartao } from '../../hooks/useCartao';
+import { useCartao } from '../../hooks/useCartao'; // 🚀 Restaurado seu hook real
 import './pagamentoPedido.css';
 
 interface PagamentoPedidoProps {
@@ -20,26 +20,32 @@ interface PagamentoPedidoProps {
   } | null;
 }
 
-const cartoesSalvosMock = [
-  { id: 100, final: '4321', bandeira: 'Mastercard', tipo: 'Crédito' },
-  { id: 200, final: '8765', bandeira: 'Visa', tipo: 'Débito' }
-];
-
 export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamento, processando, dadosPix }: PagamentoPedidoProps) {
   const navigate = useNavigate();
   const [metodoPagamento, setMetodoPagamento] = useState<'cartao' | 'pix'>('cartao');
-  const [idCartaoSelecionado, setIdCartaoSelecionado] = useState<number | null>(null);
+  
+  // Suporta tanto número (banco) quanto string para evitar bugs de tipagem
+  const [idCartaoSelecionado, setIdCartaoSelecionado] = useState<number | string | null>(null);
+  
   const [copiado, setCopiado] = useState(false);
-  const { registrarCartao } = useCartao();
+  const { registrarCartao } = useCartao(); // 🚀 Sua função real do Node.js
   const [isRegistrandoCartao, setIsRegistrandoCartao] = useState(false);
   const [dadosNovoCartao, setDadosNovoCartao] = useState({
     nome: '', numero: '', validade: '', cvv: '', cpf: ''
   });
 
-  const [listaCartoes, setListaCartoes] = useState([
-    { id: 1, final: '4321', bandeira: 'Mastercard', tipo: 'Crédito' },
-    { id: 2, final: '8765', bandeira: 'Visa', tipo: 'Débito' }
-  ]);
+  // Inicializa buscando do localStorage para não perder os cartões criados nas sessões anteriores
+  const [listaCartoes, setListaCartoes] = useState(() => {
+    const salvos = localStorage.getItem('@SempreLimpa:cartoes');
+    if (salvos) {
+      return JSON.parse(salvos);
+    }
+    // Padronizado os IDs dos Mocks para evitar o conflito visual anterior
+    return [
+      { id: 100, final: '4321', bandeira: 'Mastercard', tipo: 'Crédito' },
+      { id: 200, final: '8765', bandeira: 'Visa', tipo: 'Débito' }
+    ];
+  });
 
   const copiarPix = (textoParaCopiar: string) => {
     if (!textoParaCopiar) return;
@@ -48,14 +54,26 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
     setTimeout(() => setCopiado(false), 2000);
   };
 
- const handleRegistrarCartao = async () => {
-    const cartaoRetornadoApi = await registrarCartao(dadosNovoCartao);
+  const handleRegistrarCartao = async () => {
+    try {
+      const cartaoRetornadoApi = await registrarCartao(dadosNovoCartao);
 
-    if (cartaoRetornadoApi) {
-      setListaCartoes(prev => [...prev, cartaoRetornadoApi]);
-      setIsRegistrandoCartao(false);
-      setDadosNovoCartao({ nome: '', numero: '', validade: '', cvv: '', cpf: '' });
-      setIdCartaoSelecionado(cartaoRetornadoApi.id);
+      if (cartaoRetornadoApi) {
+        // 🚀 O SEGREDO ESTÁ AQUI: Filtra a lista atual para arrancar os Mocks fora
+        const listaSemMocks = listaCartoes.filter((c: any) => c.id !== 100 && c.id !== 200);
+        
+        // Junta a lista limpa apenas com o seu novo cartão real
+        const novaLista = [...listaSemMocks, cartaoRetornadoApi];
+        
+        setListaCartoes(novaLista);
+        localStorage.setItem('@SempreLimpa:cartoes', JSON.stringify(novaLista));
+
+        setIsRegistrandoCartao(false);
+        setDadosNovoCartao({ nome: '', numero: '', validade: '', cvv: '', cpf: '' });
+        setIdCartaoSelecionado(cartaoRetornadoApi.id);
+      }
+    } catch (error) {
+      console.error("Erro ao registrar cartão na API:", error);
     }
   };
 
@@ -187,23 +205,24 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                   <>
                     <h3>Seus cartões salvos</h3>
                     
-                    {cartoesSalvosMock.length > 0 ? (
+                    {listaCartoes.length > 0 ? (
                       <div className="lista-cartoes">
-                        {listaCartoes.map(cartao => (
+                        {listaCartoes.map((cartao:any) => (
                           <div 
                             key={cartao.id} 
-                            className={`card-cartao-cinza ${idCartaoSelecionado === cartao.id ? 'selecionado' : ''}`}
+                            /* Blindagem contra bug de tipo: transforma tudo em String para comparar perfeitamente */
+                            className={`card-cartao-cinza ${String(idCartaoSelecionado) === String(cartao.id) ? 'selecionado' : ''}`}
                             onClick={() => setIdCartaoSelecionado(cartao.id)}
                           >
                             <div className="icone-bandeira">
-                              <FiCreditCard size={24} color={idCartaoSelecionado === cartao.id ? '#007bff' : '#64748b'} />
+                              <FiCreditCard size={24} color={String(idCartaoSelecionado) === String(cartao.id) ? '#007bff' : '#64748b'} />
                             </div>
                             <div className="info-cartao">
                               <span className="nome-cartao">{cartao.bandeira} • {cartao.tipo}</span>
                               <span className="final-cartao">Final {cartao.final}</span>
                             </div>
                             <div className="radio-customizado">
-                              {idCartaoSelecionado === cartao.id && <div className="radio-ativo"></div>}
+                              {String(idCartaoSelecionado) === String(cartao.id) && <div className="radio-ativo"></div>}
                             </div>
                           </div>
                         ))}
@@ -220,6 +239,7 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                             if (dadosPix?.idPedidoBanco) {
                                navigate(`/acompanhamento/${dadosPix.idPedidoBanco}`);
                             } else {
+                               // Envia o ID numérico/real diretamente para o hook e para a procedure
                                onFinalizarPagamento('cartao', { cartaoId: idCartaoSelecionado });
                             }
                           }}
