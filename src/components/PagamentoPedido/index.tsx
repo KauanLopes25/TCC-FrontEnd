@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { FiCreditCard, FiCopy, FiCheckCircle, FiPlus, FiArrowLeft } from 'react-icons/fi';
 import { MdQrCode2 } from 'react-icons/md';
 import { QRCodeSVG } from 'qrcode.react';
+import { useNavigate } from 'react-router-dom';
+import { useCartao } from '../../hooks/useCartao'; // 🚀 Restaurado seu hook real
 import './pagamentoPedido.css';
 
 interface PagamentoPedidoProps {
@@ -9,29 +11,40 @@ interface PagamentoPedidoProps {
   onVoltar: () => void;
   onFinalizarPagamento: (metodo: string, dadosPagamento: any) => void;
   processando?: boolean;
-  // A interface agora reflete EXATAMENTE o que o usePedido devolve
   dadosPix?: { 
     metodo: 'pix' | 'cartao';
     qrCodeTexto?: string;
     qrCodeUrl?: string;
     checkoutUrl?: string; 
+    idPedidoBanco?: string | number;
   } | null;
 }
 
-// Mock inicial de cartões (depois virá do seu banco)
-const cartoesSalvosMock = [
-  { id: 1, final: '4321', bandeira: 'Mastercard', tipo: 'Crédito' },
-  { id: 2, final: '8765', bandeira: 'Visa', tipo: 'Débito' }
-];
-
 export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamento, processando, dadosPix }: PagamentoPedidoProps) {
+  const navigate = useNavigate();
   const [metodoPagamento, setMetodoPagamento] = useState<'cartao' | 'pix'>('cartao');
-  const [idCartaoSelecionado, setIdCartaoSelecionado] = useState<number | null>(null);
-  const [copiado, setCopiado] = useState(false);
   
+  // Suporta tanto número (banco) quanto string para evitar bugs de tipagem
+  const [idCartaoSelecionado, setIdCartaoSelecionado] = useState<number | string | null>(null);
+  
+  const [copiado, setCopiado] = useState(false);
+  const { registrarCartao } = useCartao(); // 🚀 Sua função real do Node.js
   const [isRegistrandoCartao, setIsRegistrandoCartao] = useState(false);
   const [dadosNovoCartao, setDadosNovoCartao] = useState({
     nome: '', numero: '', validade: '', cvv: '', cpf: ''
+  });
+
+  // Inicializa buscando do localStorage para não perder os cartões criados nas sessões anteriores
+  const [listaCartoes, setListaCartoes] = useState(() => {
+    const salvos = localStorage.getItem('@SempreLimpa:cartoes');
+    if (salvos) {
+      return JSON.parse(salvos);
+    }
+    // Padronizado os IDs dos Mocks para evitar o conflito visual anterior
+    return [
+      { id: 100, final: '4321', bandeira: 'Mastercard', tipo: 'Crédito' },
+      { id: 200, final: '8765', bandeira: 'Visa', tipo: 'Débito' }
+    ];
   });
 
   const copiarPix = (textoParaCopiar: string) => {
@@ -41,9 +54,35 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
     setTimeout(() => setCopiado(false), 2000);
   };
 
-  const handleRegistrarCartao = () => {
-    console.log("Gerando Token na Operadora e Salvando no Banco...", dadosNovoCartao);
-    setIsRegistrandoCartao(false);
+  const handleRegistrarCartao = async () => {
+    try {
+      const cartaoRetornadoApi = await registrarCartao(dadosNovoCartao);
+
+      if (cartaoRetornadoApi) {
+        // 🚀 O SEGREDO ESTÁ AQUI: Filtra a lista atual para arrancar os Mocks fora
+        const listaSemMocks = listaCartoes.filter((c: any) => c.id !== 100 && c.id !== 200);
+        
+        // Junta a lista limpa apenas com o seu novo cartão real
+        const novaLista = [...listaSemMocks, cartaoRetornadoApi];
+        
+        setListaCartoes(novaLista);
+        localStorage.setItem('@SempreLimpa:cartoes', JSON.stringify(novaLista));
+
+        setIsRegistrandoCartao(false);
+        setDadosNovoCartao({ nome: '', numero: '', validade: '', cvv: '', cpf: '' });
+        setIdCartaoSelecionado(cartaoRetornadoApi.id);
+      }
+    } catch (error) {
+      console.error("Erro ao registrar cartão na API:", error);
+    }
+  };
+
+  const simularPagamentoSucesso = () => {
+    if (dadosPix?.idPedidoBanco) {
+       navigate(`/acompanhamento/${dadosPix.idPedidoBanco}`);
+    } else {
+       navigate('/pedidos');
+    }
   };
 
   if (!resumoFinanceiro) return <p>Carregando dados do pagamento...</p>;
@@ -52,9 +91,6 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
     <div className="pagamento-container">
       <div className="pagamento-layout">
         
-        {/* ==========================================
-            COLUNA ESQUERDA (Opções de Pagamento)
-            ========================================== */}
         <div className="coluna-esquerda card-branco">
           
           {!isRegistrandoCartao && (
@@ -70,7 +106,12 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                 </button>
                 <button 
                   className={`btn-metodo ${metodoPagamento === 'pix' ? 'ativo' : ''}`}
-                  onClick={() => setMetodoPagamento('pix')}
+                  onClick={() => {
+                    setMetodoPagamento('pix');
+                    if (!dadosPix && !processando) {
+                      onFinalizarPagamento('pix', {});
+                    }
+                  }}
                 >
                   <MdQrCode2 size={24} />
                   <span>Pix</span>
@@ -81,7 +122,6 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
 
           <div className="area-conteudo-metodo">
             
-            {/* --- VISÃO CARTÃO --- */}
             {metodoPagamento === 'cartao' && (
               <div className="visao-cartao">
                 
@@ -165,23 +205,24 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                   <>
                     <h3>Seus cartões salvos</h3>
                     
-                    {cartoesSalvosMock.length > 0 ? (
+                    {listaCartoes.length > 0 ? (
                       <div className="lista-cartoes">
-                        {cartoesSalvosMock.map(cartao => (
+                        {listaCartoes.map((cartao:any) => (
                           <div 
                             key={cartao.id} 
-                            className={`card-cartao-cinza ${idCartaoSelecionado === cartao.id ? 'selecionado' : ''}`}
+                            /* Blindagem contra bug de tipo: transforma tudo em String para comparar perfeitamente */
+                            className={`card-cartao-cinza ${String(idCartaoSelecionado) === String(cartao.id) ? 'selecionado' : ''}`}
                             onClick={() => setIdCartaoSelecionado(cartao.id)}
                           >
                             <div className="icone-bandeira">
-                              <FiCreditCard size={24} color={idCartaoSelecionado === cartao.id ? '#007bff' : '#64748b'} />
+                              <FiCreditCard size={24} color={String(idCartaoSelecionado) === String(cartao.id) ? '#007bff' : '#64748b'} />
                             </div>
                             <div className="info-cartao">
                               <span className="nome-cartao">{cartao.bandeira} • {cartao.tipo}</span>
                               <span className="final-cartao">Final {cartao.final}</span>
                             </div>
                             <div className="radio-customizado">
-                              {idCartaoSelecionado === cartao.id && <div className="radio-ativo"></div>}
+                              {String(idCartaoSelecionado) === String(cartao.id) && <div className="radio-ativo"></div>}
                             </div>
                           </div>
                         ))}
@@ -194,10 +235,17 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                       {idCartaoSelecionado ? (
                         <button 
                           className="btn-acao-principal"
-                          onClick={() => onFinalizarPagamento('cartao', { cartaoId: idCartaoSelecionado })}
+                          onClick={() => {
+                            if (dadosPix?.idPedidoBanco) {
+                               navigate(`/acompanhamento/${dadosPix.idPedidoBanco}`);
+                            } else {
+                               // Envia o ID numérico/real diretamente para o hook e para a procedure
+                               onFinalizarPagamento('cartao', { cartaoId: idCartaoSelecionado });
+                            }
+                          }}
                           disabled={processando} 
                         >
-                          {processando ? 'Redirecionando...' : 'Confirmar pagamento'}
+                          {processando ? 'Processando...' : 'Confirmar pagamento'}
                         </button>
                       ) : (
                         <button 
@@ -214,28 +262,18 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
               </div>
             )}
 
-            {/* --- VISÃO PIX --- */}
             {metodoPagamento === 'pix' && !isRegistrandoCartao && (
               <div className="visao-pix">
                 
-                {/* SE AINDA NÃO GEROU O PIX */}
                 {!dadosPix ? (
                   <div className="geracao-pix-pendente" style={{ textAlign: 'center', padding: '40px 0' }}>
-                    <MdQrCode2 size={80} color="#cbd5e1" style={{ marginBottom: '16px' }} />
+                     <div className="spinner-loader" style={{ margin: '0 auto 16px' }}></div>
                     <p style={{ color: '#475569', marginBottom: '24px' }}>
-                      Finalize o pedido para gerarmos o seu código Pix seguro.
+                      Gerando seu código Pix seguro...
                     </p>
-                    <button 
-                      className="btn-acao-principal pix-btn"
-                      disabled={processando}
-                      onClick={() => onFinalizarPagamento('pix', {})}
-                    >
-                      {processando ? 'Gerando Código...' : 'Gerar código Pix'}
-                    </button>
                   </div>
                 ) : (
                   
-                  /* SE O PIX FOI GERADO (Uso do qrCodeTexto alinhado com o Hook) */
                   <div className="pix-gerado-sucesso">
                     <div className="box-qrcode-cinza" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                       {dadosPix.qrCodeTexto ? (
@@ -259,9 +297,19 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
                       </div>
                     </div>
 
-                    <div className="status-pix-container">
-                      <div className="spinner-loader"></div>
-                      <span>Esperando conclusão do pagamento...</span>
+                    <div className="status-pix-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginTop: '20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div className="spinner-loader"></div>
+                        <span>Esperando conclusão do pagamento...</span>
+                      </div>
+                      
+                      <button 
+                        className="btn-acao-principal"
+                        style={{ backgroundColor: '#22c55e', border: 'none', padding: '10px 20px', borderRadius: '8px', color: '#fff', cursor: 'pointer', width: '100%' }}
+                        onClick={simularPagamentoSucesso}
+                      >
+                        Concluído
+                      </button>
                     </div>
                   </div>
                 )}
@@ -271,9 +319,6 @@ export function PagamentoPedido({ resumoFinanceiro, onVoltar, onFinalizarPagamen
           </div>
         </div>
 
-        {/* ==========================================
-            COLUNA DIREITA (Resumo do Pedido)
-            ========================================== */}
         <div className="coluna-direita">
           <div className="card-branco card-resumo-financeiro">
             <h3>Resumo final</h3>

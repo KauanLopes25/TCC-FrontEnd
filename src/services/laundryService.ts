@@ -38,7 +38,7 @@ export const buscarLavanderias = async (
     if (!response.ok) {
         throw new Error(data.mensagemErro || "Erro ao buscar as lavanderias");
     }
-
+    console.log(data)
     return data; 
 };
 

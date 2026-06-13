@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FilterBarPedidos } from '../../components/FilterBarPedidos';
 import { ModalDataPedido } from '../../components/ModalDataPedidos';
 import { FiEye, FiShoppingBag } from 'react-icons/fi';
-import { usePedidos } from '../../hooks/usePedidos'; // 1. Importando o Hook
+import { usePedidos } from '../../hooks/usePedidos';
 import './MeusPedidos.css';
 
 export function MeusPedidos() {
-  // 2. Chamando o Hook (Usando o ID 1 para testar. Troque depois pelo usuário logado!)
+  const navigate = useNavigate();
+
   const idUsuarioLogado = 1; 
   const { pedidos, carregando, erro } = usePedidos(idUsuarioLogado);
 
@@ -16,7 +18,6 @@ export function MeusPedidos() {
   const [filtroDataValor, setFiltroDataValor] = useState<string | null>(null);
   const [filtroDataLabel, setFiltroDataLabel] = useState<string | null>(null);
 
-  // 1. Garantimos que a data vai ser lida corretamente, mesmo se vier em outro formato
   const formatarData = (dataIso: string | undefined) => {
     if (!dataIso) return 'Data indisponível';
     try {
@@ -27,65 +28,66 @@ export function MeusPedidos() {
     }
   };
 
-  // 2. Forçamos a conversão para Number para o Switch não falhar
-// 2. Função Blindada e Expandida para 5 Status
-  const getStatusBadge = (idStatus: string | number | undefined) => {
-    if (idStatus === undefined || idStatus === null) {
-      return <span className="badge-status">Indisponível</span>;
-    }
+  const getStatusBadge = (
+  statusTexto?: string,
+  statusId?: number
+) => {
 
-    const idNumerico = Number(idStatus);
-    
-    if (isNaN(idNumerico)) {
-       return <span className="badge-status">Desconhecido</span>;
-    }
-    
-    // Ajuste os nomes conforme estão cadastrados na sua tabela de status_pedido
-    switch (idNumerico) {
-      case 1: return <span className="badge-status pendente">Aguardando</span>;
-      case 2: return <span className="badge-status coletado">Coletado</span>;
-      case 3: return <span className="badge-status andamento">Lavando</span>;
-      case 4: return <span className="badge-status entregue">Entregue</span>;
-      case 5: return <span className="badge-status cancelado">Cancelado</span>;
-      default: return <span className="badge-status">Status {idNumerico}</span>;
-    }
-  };
+  let status = statusTexto;
 
-  // ... suas funções formatarData e getStatusBadge ...
+  if (!status && statusId) {
+    switch (statusId) {
+      case 1: status = 'SOLICITADO'; break;
+      case 2: status = 'ATRIBUIDO'; break;
+      case 3: status = 'COLETANDO'; break;
+      case 4: status = 'EM_TRANSITO'; break;
+      case 5: status = 'LAVANDO'; break;
+      case 6: status = 'SECANDO'; break;
+      case 7: status = 'RETORNANDO'; break;
+      case 8: status = 'ENTREGUE'; break;
+      case 9: status = 'CANCELADO'; break;
+    }
+  }
 
-  // ==========================================
-  // O FUNIL DE FILTROS
-  // ==========================================
+  if (!status) {
+    return <span className="badge-status">Indisponível</span>;
+  }
+
+  switch (status) {
+    case 'SOLICITADO': return <span className="badge-status solicitado">Solicitado</span>;
+    case 'ATRIBUIDO': return <span className="badge-status atribuido">Atribuído</span>;
+    case 'COLETANDO': return <span className="badge-status coletando">Coletando</span>;
+    case 'EM_TRANSITO': return <span className="badge-status transito">Em Trânsito</span>;
+    case 'LAVANDO': return <span className="badge-status lavando">Lavando</span>;
+    case 'SECANDO': return <span className="badge-status secando">Secando</span>;
+    case 'RETORNANDO': return <span className="badge-status retornando">Retornando</span>;
+    case 'ENTREGUE': return <span className="badge-status entregue">Entregue</span>;
+    case 'CANCELADO': return <span className="badge-status cancelado">Cancelado</span>;
+    default: return <span className="badge-status">{status}</span>;
+  }
+};
+
   const pedidosFiltrados = Array.isArray(pedidos) ? pedidos.filter((pedido) => {
-    // 1. Filtro de Busca (Número do Pedido)
     if (busca !== '') {
-      // Pega o ID (ex: 13) transforma em string ("13") e vê se inclui o que foi digitado
       const idString = String(pedido.pedido_id || pedido.id);
       if (!idString.includes(busca)) {
-        return false; // Se não bater, descarta da lista
+        return false; 
       }
     }
 
-    // 2. Filtro de Status (Relacionando as strings com os IDs do Banco)
     if (statusAtivo) {
-      const idStatus = Number(pedido.fk_status_id);
+      const statusStr = String(pedido.status_pedido || '').toUpperCase();
+      const andamentoStatus = ['SOLICITADO', 'ATRIBUIDO', 'COLETANDO', 'EM_TRANSITO', 'LAVANDO', 'SECANDO', 'RETORNANDO'];
       
-      // Se o botão for "andamento", aceita os status 1, 2 e 3 (Pendente, Coletado, Lavando)
-      if (statusAtivo === 'andamento' && ![1, 2, 3].includes(idStatus)) return false;
-      
-      // Se o botão for "entregue", aceita apenas o status 4
-      if (statusAtivo === 'entregue' && idStatus !== 4) return false;
-      
-      // Se o botão for "cancelado", aceita apenas o status 5
-      if (statusAtivo === 'cancelado' && idStatus !== 5) return false;
+      if (statusAtivo === 'andamento' && !andamentoStatus.includes(statusStr)) return false;
+      if (statusAtivo === 'entregue' && statusStr !== 'ENTREGUE') return false;
+      if (statusAtivo === 'cancelado' && statusStr !== 'CANCELADO') return false;
     }
 
-    // 3. Filtro de Data (7 dias ou 30 dias)
     if (filtroDataValor && pedido.data) {
       const dataDoPedido = new Date(pedido.data);
       const dataDeHoje = new Date();
       
-      // Calcula a diferença em dias
       const diferencaTempo = dataDeHoje.getTime() - dataDoPedido.getTime();
       const diferencaDias = Math.floor(diferencaTempo / (1000 * 3600 * 24));
 
@@ -93,7 +95,6 @@ export function MeusPedidos() {
       if (filtroDataValor === '30dias' && diferencaDias > 30) return false;
     }
 
-    // Se sobreviveu a todos os `ifs` acima, o pedido passa pelo funil!
     return true; 
   }) : [];
 
@@ -116,15 +117,13 @@ export function MeusPedidos() {
         <div className="card-lista-pedidos">
           <div className="lista-scroll-container">
             
-            {/* 3. Tratamento visual de Loading e Erro */}
             {carregando && <p style={{ textAlign: 'center', marginTop: '20px' }}>Carregando seus pedidos...</p>}
             {erro && <p style={{ textAlign: 'center', color: 'red', marginTop: '20px' }}>{erro}</p>}
             
             {!carregando && !erro && pedidosFiltrados.length === 0 && (
                 <p style={{ textAlign: 'center', color: '#666', marginTop: '20px' }}>Nenhum pedido encontrado com esses filtros.</p>
-                )}
+            )}
 
-            {/* 4. Renderizando os dados reais do banco */}
             {!carregando && !erro && pedidosFiltrados.map((pedido) =>  (
                 <div key={pedido.pedido_id || pedido.id} className="pedido-item-row">
                 
@@ -136,21 +135,22 @@ export function MeusPedidos() {
                   <div className="pedido-textos">
                     <div className="linha-topo-textos">
                       <span className="pedido-numero">Pedido #{pedido.pedido_id || pedido.id}</span>
-                      
-                      {/* A CORREÇÃO ESTÁ AQUI: Trocamos pedido.status por pedido.fk_status_id */}
-                      {getStatusBadge(pedido.fk_status_id)}
-                      
+                      {getStatusBadge(
+                        pedido.status_pedido,
+                        pedido.fk_status_pedido_id
+                      )}
                     </div>
                     <span className="pedido-detalhes">
                       {formatarData(pedido.data)} • R$ {pedido.valor_total}
                     </span>
                   </div>
-
-
                 </div>
                 
                 <div className="pedido-acoes-direita">
-                  <button className="btn-visualizar-pedido">
+                  <button 
+                    className="btn-visualizar-pedido"
+                    onClick={() => navigate(`/acompanhamento/${pedido.pedido_id || pedido.id}`)}
+                  >
                     <FiEye size={18} />
                     <span>Visualizar</span>
                   </button>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 import { useSteeper } from '../../hooks/useSteeper';
 import { useLavanderia } from '../../hooks/useLavanderia'; 
 import { StepHeader } from '../../components/StepHeader';
@@ -6,15 +7,13 @@ import { FilterBar } from '../../components/FilterBar';
 import { LaundryCard } from '../../components/LaundryCard';
 import { LocationFilter } from '../../components/LocationFilter'; 
 import { PagamentoPedido } from '../../components/PagamentoPedido';
-import { usePedido } from '../../hooks/usePedido'; // Ajuste o caminho de pastas se necessário
-// Importando as Telas/Componentes
+import { usePedido } from '../../hooks/usePedido'; 
 import { DetalhesLavanderia } from '../DetalhesLavanderia'; 
 import { MontagemCesto } from '../MontagemCesto';
-
-// IMPORT AJUSTADO: Buscando o CheckoutPedido da pasta components!
 import { CheckoutPedido } from '../../components/CheckoutPedido';
 
 export function Lavanderias() {
+  const navigate = useNavigate(); 
   const { passoAtual, circuloAtivo, porcentagem, proximoPasso, passoAnterior } = useSteeper();
   const { criarPedido, processandoPagamento, dadosPagamentoAbacate } = usePedido();
   const [idLavanderiaSelecionada, setIdLavanderiaSelecionada] = useState<number | null>(null);
@@ -105,7 +104,6 @@ export function Lavanderias() {
         />
       )}
 
-      {/* O Componente do Passo 4 perfeitamente plugado */}
       {passoAtual === 4 && (
         <CheckoutPedido 
           lavanderia={lavanderias.find(l => l.lavanderia_id === idLavanderiaSelecionada)}
@@ -113,55 +111,46 @@ export function Lavanderias() {
           onVoltar={passoAnterior}
           onConfirmar={(dadosFinais) => {
             setDadosFinaisPedido(dadosFinais);
-            proximoPasso(); // Manda para o Passo 5
+            proximoPasso(); 
           }}
         />
       )}
-      {/* ==========================================
-          PASSO 5: TELA DE PAGAMENTO FINAL
-          ========================================== */}
+      
       {passoAtual === 5 && dadosFinaisPedido && (
         <PagamentoPedido 
           resumoFinanceiro={dadosFinaisPedido.resumoFinanceiro}
           onVoltar={passoAnterior}
-          processando={processandoPagamento} // Passa o estado de loading do hook
-          dadosPix={dadosPagamentoAbacate}   // Passa os dados reais da AbacatePay (QR Code / Copia e Cola)
+          processando={processandoPagamento} 
+          dadosPix={dadosPagamentoAbacate}   
           
           onFinalizarPagamento={async (metodo, dadosMetodo) => {
             
-            // Montamos o JSON exato que o seu Node.js (criarPedidoCompleto) espera receber
             const payloadFinalAPI = {
-              usuario_id: 1, // Chumbado temporariamente para o MVP até ter o Context de Login
+              usuario_id: 1, 
               lavanderia_id: dadosFinaisPedido.idLavanderia,
-              
-              // Valores financeiros que vieram calculados do Passo 4
               valor_ciclos: dadosFinaisPedido.resumoFinanceiro.valor_ciclos,
               taxa_entrega: dadosFinaisPedido.resumoFinanceiro.taxa_entrega,
-              
-              // Informações do método de pagamento escolhido na UI
-              tipo_pagamento: metodo.toUpperCase(), // Vai como 'PIX' ou 'CARTAO'
+              tipo_pagamento: metodo.toUpperCase(), 
               cartao_id: metodo === 'cartao' ? dadosMetodo.cartaoId : null,
-              tipo_cartao: 'CREDITO', // Padrão para a simulação
-              
-              // O array de cestos contendo os ciclos selecionados e as roupas de cada um
+              tipo_cartao: 'CREDITO', 
               cestos: dadosFinaisPedido.cestos 
             };
 
-            console.log("🚀 Enviando pacote final de Checkout para a API:", payloadFinalAPI);
+            const respostaHook = await criarPedido(payloadFinalAPI);
 
-            // Dispara a função do hook que faz o fetch e se comunica com a AbacatePay
-            const resultado = await criarPedido(payloadFinalAPI);
+            if (respostaHook.sucesso) {
+              // 🚀 Agora sim estamos acessando a camada correta!
+              const idGerado = respostaHook.dados.items.pedido_id;
 
-            if (resultado.sucesso) {
               if (metodo === 'cartao') {
-                // Se for cartão, o próprio hook já vai ter jogado o usuário para a URL da AbacatePay.
-                // Mas deixamos um log aqui por garantia.
-                console.log("Redirecionando para o checkout seguro...");
-              } else {
-                console.log("Pix gerado com sucesso pelo back-end!");
-              }
+                setTimeout(() => {
+                  navigate(`/acompanhamento/${idGerado}`);
+                }, 2000);
+              } 
+              // Se for PIX, o próprio hook já cuidou de salvar o ID e atualizar a tela, 
+              // não precisamos dar navigate aqui porque o cliente ainda vai ler o QR Code.
             } else {
-              alert("Erro ao processar o seu pedido. Verifique o console do back-end.");
+              alert("Erro ao processar: " + respostaHook.erro);
             }
           }}
         />
